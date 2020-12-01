@@ -45,7 +45,7 @@ displayBackground:
 generateRandom:
 	li $v0, 42
 	li $a0, 0
-	li $a1, 1020
+	li $a1, 1008
 	syscall # random number will be in $a0
 	jr $ra 	# jump back to where we left off in main
 	
@@ -57,7 +57,34 @@ insertNumber:
 	add $t3, $t3, $s4 	# get platforms[i] by getting the address offset bits away from $s4
 	sw $t2, 0($t3)		# load the number into platforms[i]
 	jr $ra
-	
+
+# function for displaying the 3 platforms on the screen utilizing the platforms array in $s4 (size = 3)
+displayPlatforms:
+	add $t0, $zero, $zero 	# i = 0
+	addi $t1, $zero, 1	# limit_i = 3
+	PLATFORMS_LOOP:
+		bge $t0, $t1, DISPLAY_PLATFORMS_EXIT 	# exit when $t0 >= $t1 (i >= 3)
+		sll $t2, $t0, 2 			# offset = i*4
+		add $t3, $s4, $t2 			# $t3 = addr(platforms[i])
+		lw $t4, 0($t3)				# load the value at platforms[i] into $t4, we have the position to display a platform now
+		sll $t4, $t4, 2			# the position to write to in relation to the displayAddress (displayAddres[0])
+		add $t4, $s0, $t4
+		
+		add $t5, $zero, $zero			# j = 0
+		addi $t6, $zero, 3			# limit_j = 3
+		DISPLAY_PLATFORMS_SUB_LOOP:
+			bge $t5, $t6, EXIT_DISPLAY_SUB_LOOP 	# exit when j >= 3
+			sll $t7, $t5, 2				# sub_offset = j*4
+			add $t8, $t4, $t7			# the new positions we want to draw $s3 to in $s0
+			sw $s3, 0($t8)				# display the platform colour to $s0 at the appropriate position
+			addi $t5, $t5, 1			# j += 1
+			j DISPLAY_PLATFORMS_SUB_LOOP
+		
+		EXIT_DISPLAY_SUB_LOOP:
+			addi $t0, $t0, 1			# increment i += 1
+		
+	DISPLAY_PLATFORMS_EXIT:
+		jr $ra
 		
 main:
 	# initialize saved registers
@@ -81,7 +108,13 @@ main:
 		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
 		addi $t0, $t0, 1			# increment i += 1
 		j GENERATE_LOOP 			# if reached, continue to loop
-	GENERATE_LOOP_EXIT:	
+		
+GENERATE_LOOP_EXIT:
+
+	jal displayPlatforms
+	
+		
+				
 	EXIT:
 		li $v0, 10
 		syscall
