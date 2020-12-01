@@ -13,7 +13,6 @@
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestone is reached in this submission?
-# (See the assignment handout for descriptions of the milestones)
 # - Milestone 0
 #
 
@@ -22,6 +21,7 @@ displayAddress: .word 0x10008000 # the display address we write pixels to
 background: .word 0xbaedff # the background colour 
 doodlerColour: .word 0x12a173 	# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xc28100 	# the platform's colour (12747008 in decimal)
+platforms: .space 12 # array of 3 integers
 
 .text
 j main
@@ -41,6 +41,15 @@ displayBackground:
 	
 	BG_LOOP_EXIT:
 		jr $ra
+
+# function for generating a random number (used to decide where a platform should be drawn)
+generateNumber:
+	li $v0, 42
+	li $a0, 0
+	li $a1, 1020
+	syscall # random number will be in $a0
+	jr $ra 	# jump back to where we left off in main
+	
 		
 main:
 	# initialize saved registers
@@ -49,9 +58,13 @@ main:
 	lw $s1, background 	# $s1 holds the array of background colour codes of size 1024
 	lw $s2, doodlerColour 	# $s2 holds the doodler's colour
 	lw $s3, platformColour # $s3 holds the platform's colour
+	lw $s4, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	
 	# display the background on the screen
 	jal displayBackground
+	
+	# generate a random number in the range of [0, 1020}
+	jal generateNumber
 	
 	EXIT:
 	li $v0, 10
