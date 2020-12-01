@@ -17,11 +17,11 @@
 #
 
 .data
-displayAddress: .word 0x10008000 # the display address we write pixels to
-background: .word 0xbaedff # the background colour 
-doodlerColour: .word 0x12a173 	# the doodler's colour (1220979 in decimal)
-platformColour: .word 0xc28100 	# the platform's colour (12747008 in decimal)
-platforms: .space 12 # array of 3 integers
+displayAddress: .word 0x10008000 	# the display address we write pixels to
+background: .word 0xbaedff 		# the background colour 
+doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
+platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
+platforms: .space 12			# array of 3 integers
 
 .text
 j main
@@ -43,12 +43,21 @@ displayBackground:
 		jr $ra
 
 # function for generating a random number (used to decide where a platform should be drawn)
-generateNumber:
+generateRandom:
 	li $v0, 42
 	li $a0, 0
 	li $a1, 1020
 	syscall # random number will be in $a0
 	jr $ra 	# jump back to where we left off in main
+	
+# function for inserting the random number generated into the correct position of $s4
+# PARAMETERS: $a0 - random number, $a1 - offset needed to get platforms[i]
+insertNumber:
+	add $t2, $a0, $zero 	# load the value in $a0 into $t2
+	add $t3, $a1, $zero	# load the offset value into $t3
+	add $t3, $t3, $s4 	# get platforms[i] by getting the address offset bits away from $s4
+	sw $t2, 0($t3)		# load the number into platforms[i]
+	jr $ra
 	
 		
 main:
@@ -58,17 +67,25 @@ main:
 	lw $s1, background 	# $s1 holds the array of background colour codes of size 1024
 	lw $s2, doodlerColour 	# $s2 holds the doodler's colour
 	lw $s3, platformColour # $s3 holds the platform's colour
-	lw $s4, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
+	la $s4, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	
 	# display the background on the screen
 	jal displayBackground
 	
-	# generate a random number in the range of [0, 1020}
-	jal generateNumber
-	
+	add $t0, $zero, $zero # $t0 holds i=0
+	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
+	GENERATE_LOOP:
+		#bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
+		jal generateRandom 			# generate a random number in the range of [0, 1020}
+		add $a1, $zero, $zero
+		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
+		
+		#j GENERATE_LOOP 			# if reached, continue to loop
+	#GENERATE_LOOP_EXIT:
+		
 	EXIT:
-	li $v0, 10
-	syscall
+		li $v0, 10
+		syscall
 	
 
 	 
