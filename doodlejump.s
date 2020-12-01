@@ -1,4 +1,9 @@
-# Doodle Jump
+#####################################################################
+#
+# CSC258H5S Fall 2020 Assembly Final Project
+# University of Toronto, St. George
+#
+# Student: Rajvi Rana, 1005103745
 #
 # Bitmap Display Configuration:
 # - Unit width in pixels: 8
@@ -6,6 +11,11 @@
 # - Display width in pixels: 256
 # - Display height in pixels: 256
 # - Base Address for Display: 0x10008000 ($gp)
+#
+# Which milestone is reached in this submission?
+# (See the assignment handout for descriptions of the milestones)
+# - Milestone 0
+#
 
 .data
 displayAddress: .word 0x10008000 # the display address we write pixels to
