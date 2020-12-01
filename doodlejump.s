@@ -34,7 +34,6 @@ displayBackground:
 		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
 		sll $t2, $t0, 2 	# $t2 = offset = i*4
 		add $t3, $s0, $t2	# $t3 = displayAddress[i] the pixel we will be writing to
-		#lw $t4, 0($s1) 		# loading the value at address $t4 = background[i] into $t5
 		sw $s1, 0($t3) 		# write the value at register $t5 into $t3 = displayAddress[i]
 		addi $t0, $t0, 1 	# increment i += 1
 		j BG_LOOP
@@ -75,14 +74,14 @@ main:
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 	GENERATE_LOOP:
-		#bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
+		bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		jal generateRandom 			# generate a random number in the range of [0, 1020}
-		add $a1, $zero, $zero
+		
+		sll $a1, $t0, 2				# offset = i*4
 		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
-		
-		#j GENERATE_LOOP 			# if reached, continue to loop
-	#GENERATE_LOOP_EXIT:
-		
+		addi $t0, $t0, 1			# increment i += 1
+		j GENERATE_LOOP 			# if reached, continue to loop
+	GENERATE_LOOP_EXIT:	
 	EXIT:
 		li $v0, 10
 		syscall
