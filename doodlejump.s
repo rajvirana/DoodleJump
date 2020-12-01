@@ -61,7 +61,7 @@ insertNumber:
 # function for displaying the 3 platforms on the screen utilizing the platforms array in $s4 (size = 3)
 displayPlatforms:
 	add $t0, $zero, $zero 	# i = 0
-	addi $t1, $zero, 1	# limit_i = 3
+	addi $t1, $zero, 3	# limit_i = 3
 	PLATFORMS_LOOP:
 		bge $t0, $t1, DISPLAY_PLATFORMS_EXIT 	# exit when $t0 >= $t1 (i >= 3)
 		sll $t2, $t0, 2 			# offset = i*4
@@ -71,7 +71,7 @@ displayPlatforms:
 		add $t4, $s0, $t4
 		
 		add $t5, $zero, $zero			# j = 0
-		addi $t6, $zero, 3			# limit_j = 3
+		addi $t6, $zero, 6			# limit_j = 3
 		DISPLAY_PLATFORMS_SUB_LOOP:
 			bge $t5, $t6, EXIT_DISPLAY_SUB_LOOP 	# exit when j >= 3
 			sll $t7, $t5, 2				# sub_offset = j*4
@@ -81,7 +81,8 @@ displayPlatforms:
 			j DISPLAY_PLATFORMS_SUB_LOOP
 		
 		EXIT_DISPLAY_SUB_LOOP:
-			addi $t0, $t0, 1			# increment i += 1
+		addi $t0, $t0, 1			# increment i += 1
+		j PLATFORMS_LOOP
 		
 	DISPLAY_PLATFORMS_EXIT:
 		jr $ra
