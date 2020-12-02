@@ -13,7 +13,7 @@
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestone is reached in this submission?
-# - Milestone 2/3
+# - Milestone 1
 #
 
 .data
@@ -29,13 +29,15 @@ j main
 
 # function for drawing the background on display
 displayBackground:
+	lw $t4, displayAddress 		# load the displayAddress into $t4
+	lw $t5, background		# load the background colour into $t5
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 1024 # $t1 holds 1024, the maximum number of pixels to display
 	BG_LOOP:
 		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
 		sll $t2, $t0, 2 	# $t2 = offset = i*4
-		add $t3, $s0, $t2	# $t3 = displayAddress[i] the pixel we will be writing to
-		sw $s1, 0($t3) 		# write the value at register $t5 into $t3 = displayAddress[i]
+		add $t3, $t4, $t2	# $t3 = displayAddress[i] the pixel we will be writing to
+		sw $t5, 0($t3) 		# write the value at register $t5 into $t3 = displayAddress[i]
 		addi $t0, $t0, 1 	# increment i += 1
 		j BG_LOOP
 	
@@ -55,21 +57,23 @@ generateRandom:
 insertNumber:
 	add $t2, $a0, $zero 	# load the value in $a0 into $t2
 	add $t3, $a1, $zero	# load the offset value into $t3
-	add $t3, $t3, $s4 	# get platforms[i] by getting the address offset bits away from $s4
+	add $t3, $t3, $s0 	# get platforms[i] by getting the address offset bits away from $s0
 	sw $t2, 0($t3)		# load the number into platforms[i]
 	jr $ra
 
 # function for displaying the 3 platforms on the screen utilizing the platforms array in $s4 (size = 3)
 displayPlatforms:
+	lw $t9, displayAddress
+	lw $s7, platformColour
 	add $t0, $zero, $zero 	# i = 0
 	addi $t1, $zero, 3	# limit_i = 3
 	PLATFORMS_LOOP:
 		bge $t0, $t1, DISPLAY_PLATFORMS_EXIT 	# exit when $t0 >= $t1 (i >= 3)
 		sll $t2, $t0, 2 			# offset = i*4
-		add $t3, $s4, $t2 			# $t3 = addr(platforms[i])
+		add $t3, $s0, $t2 			# $t3 = addr(platforms[i])
 		lw $t4, 0($t3)				# load the value at platforms[i] into $t4, we have the position to display a platform now
 		sll $t4, $t4, 2
-		add $t4, $s0, $t4			# the position to write to in relation to the displayAddress
+		add $t4, $t9, $t4			# the position to write to in relation to the displayAddress
 		
 		add $t5, $zero, $zero			# j = 0
 		addi $t6, $zero, 6			# limit_j = 6
@@ -77,7 +81,7 @@ displayPlatforms:
 			bge $t5, $t6, EXIT_DISPLAY_SUB_LOOP 	# exit when j >= 3
 			sll $t7, $t5, 2				# sub_offset = j*4
 			add $t8, $t4, $t7			# the new positions we want to draw $s3 to in $s0
-			sw $s3, 0($t8)				# display the platform colour to $s0 at the appropriate position
+			sw $s7, 0($t8)				# display the platform colour to $s0 at the appropriate position
 			addi $t5, $t5, 1			# j += 1
 			j DISPLAY_PLATFORMS_SUB_LOOP
 		
@@ -90,29 +94,24 @@ displayPlatforms:
 
 # function to display doodler on screen
 displayDoodler:
-	li $s5, 3776
-	add $t0, $s5, $s0
-	sw $s2, 0($t0)
-	sw $s2, 124($t0)
-	sw $s2, 128($t0)
-	sw $s2, 132($t0)
-	sw $s2, 252($t0)
-	sw $s2, 260($t0)
+	lw $t0, displayAddress	# load the displayAddress into $t0
+	lw $t1, doodlerColour 	# load the doodlerColour into $t1
+	li $s1, 3776		# the topmost coordinate the doodler is drawn at
+	add $t2, $s1, $t0	# the topmost coordinate of the doodler in relation to the displayAdress
+	sw $t1, 0($t2)
+	sw $t1, 124($t2)
+	sw $t1, 128($t2)
+	sw $t1, 132($t2)
+	sw $t1, 252($t2)
+	sw $t1, 260($t2)
 	jr $ra
 	
 		
 main:
 	# initialize saved registers
-	
-	lw $s0, displayAddress 	# $s0 holds the base address for display
-	lw $s1, background 	# $s1 holds the array of background colour codes of size 1024
 	lw $s2, doodlerColour 	# $s2 holds the doodler's colour
-	lw $s3, platformColour # $s3 holds the platform's colour
-	la $s4, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
-	la $s5, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
-	
-	# display the background on the screen
-	jal displayBackground
+	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
+	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
@@ -125,6 +124,7 @@ main:
 		j GENERATE_LOOP 			# if reached, continue to loop
 		
 	GENERATE_LOOP_EXIT:
+	jal displayBackground
 	jal displayPlatforms
 	jal displayDoodler
 	
