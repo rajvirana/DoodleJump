@@ -13,7 +13,7 @@
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestone is reached in this submission?
-# - Milestone 0
+# - Milestone 2/3
 #
 
 .data
@@ -22,6 +22,7 @@ background: .word 0xbaedff 		# the background colour
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
+doodlerLoc: .space 4			# the top most coordinate of the doodler
 
 .text
 j main
@@ -67,11 +68,11 @@ displayPlatforms:
 		sll $t2, $t0, 2 			# offset = i*4
 		add $t3, $s4, $t2 			# $t3 = addr(platforms[i])
 		lw $t4, 0($t3)				# load the value at platforms[i] into $t4, we have the position to display a platform now
-		sll $t4, $t4, 2			# the position to write to in relation to the displayAddress (displayAddres[0])
-		add $t4, $s0, $t4
+		sll $t4, $t4, 2
+		add $t4, $s0, $t4			# the position to write to in relation to the displayAddress
 		
 		add $t5, $zero, $zero			# j = 0
-		addi $t6, $zero, 6			# limit_j = 3
+		addi $t6, $zero, 6			# limit_j = 6
 		DISPLAY_PLATFORMS_SUB_LOOP:
 			bge $t5, $t6, EXIT_DISPLAY_SUB_LOOP 	# exit when j >= 3
 			sll $t7, $t5, 2				# sub_offset = j*4
@@ -85,7 +86,20 @@ displayPlatforms:
 		j PLATFORMS_LOOP
 		
 	DISPLAY_PLATFORMS_EXIT:
-		jr $ra
+	jr $ra
+
+# function to display doodler on screen
+displayDoodler:
+	li $s5, 3776
+	add $t0, $s5, $s0
+	sw $s2, 0($t0)
+	sw $s2, 124($t0)
+	sw $s2, 128($t0)
+	sw $s2, 132($t0)
+	sw $s2, 252($t0)
+	sw $s2, 260($t0)
+	jr $ra
+	
 		
 main:
 	# initialize saved registers
@@ -95,6 +109,7 @@ main:
 	lw $s2, doodlerColour 	# $s2 holds the doodler's colour
 	lw $s3, platformColour # $s3 holds the platform's colour
 	la $s4, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
+	la $s5, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	
 	# display the background on the screen
 	jal displayBackground
@@ -103,16 +118,15 @@ main:
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 	GENERATE_LOOP:
 		bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
-		jal generateRandom 			# generate a random number in the range of [0, 1020}
-		
+		jal generateRandom 			# generate a random number in the range of [0, 1008}
 		sll $a1, $t0, 2				# offset = i*4
 		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
 		addi $t0, $t0, 1			# increment i += 1
 		j GENERATE_LOOP 			# if reached, continue to loop
 		
-GENERATE_LOOP_EXIT:
-
+	GENERATE_LOOP_EXIT:
 	jal displayPlatforms
+	jal displayDoodler
 	
 		
 				
