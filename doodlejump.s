@@ -119,6 +119,7 @@ main:
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	
 LOOP:
+	bc1t EXIT
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 	GENERATE_LOOP:
@@ -135,6 +136,7 @@ LOOP:
 	jal displayDoodler
 	
 	jal sleep
+	j LOOP
 				
 	EXIT:
 	li $v0, 10
