@@ -105,13 +105,20 @@ displayDoodler:
 	sw $t1, 252($t2)
 	sw $t1, 260($t2)
 	jr $ra
-	
+
+# function to make the program sleep for a certain number of milliseconds
+sleep:
+	li $v0, 32
+	li $a0, 1000
+	syscall
+	jr $ra	
 		
 main:
 	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	
+LOOP:
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 	GENERATE_LOOP:
@@ -127,11 +134,11 @@ main:
 	jal displayPlatforms
 	jal displayDoodler
 	
-		
+	jal sleep
 				
 	EXIT:
-		li $v0, 10
-		syscall
+	li $v0, 10
+	syscall
 	
 
 	 
