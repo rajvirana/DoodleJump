@@ -117,9 +117,10 @@ main:
 	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
+	li $s2, 1		# $s2 is 1 if the game should continue running, 0 if it should reset to initial position and freeze
 	
-LOOP:
-	bc1t EXIT
+GAME_LOOP:
+	beqz $s2, EXIT
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 	GENERATE_LOOP:
@@ -136,7 +137,7 @@ LOOP:
 	jal displayDoodler
 	
 	jal sleep
-	j LOOP
+	j GAME_LOOP
 				
 	EXIT:
 	li $v0, 10
