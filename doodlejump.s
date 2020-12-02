@@ -96,14 +96,15 @@ displayPlatforms:
 displayDoodler:
 	lw $t0, displayAddress	# load the displayAddress into $t0
 	lw $t1, doodlerColour 	# load the doodlerColour into $t1
-	li $s1, 3776		# the topmost coordinate the doodler is drawn at
-	add $t2, $s1, $t0	# the topmost coordinate of the doodler in relation to the displayAdress
-	sw $t1, 0($t2)
-	sw $t1, 124($t2)
-	sw $t1, 128($t2)
-	sw $t1, 132($t2)
-	sw $t1, 252($t2)
-	sw $t1, 260($t2)
+	add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3776 is the initial position)
+	sw $t2, 0($s1)		# save the doodler's current location
+	add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAdress
+	sw $t1, 0($t3)
+	sw $t1, 124($t3)
+	sw $t1, 128($t3)
+	sw $t1, 132($t3)
+	sw $t1, 252($t3)
+	sw $t1, 260($t3)
 	jr $ra
 
 # function to make the program sleep for a certain number of milliseconds
@@ -129,9 +130,11 @@ main:
 		addi $t0, $t0, 1	# increment i += 1
 		j GENERATE_LOOP1 	# if reached, continue to loop
 	
-DISPLAY1:	jal displayBackground
-		jal displayPlatforms
-		jal displayDoodler
+DISPLAY1:	
+	jal displayBackground
+	li $a0, 3776
+	jal displayPlatforms
+	jal displayDoodler
 IF:
 	lw $t8, 0xffff0000	# load the value at this address
 	bne $t8, 1, IF
@@ -155,6 +158,7 @@ GAME_LOOP:
 	GENERATE_LOOP_EXIT:
 	jal displayBackground
 	jal displayPlatforms
+	li $a0, 3776
 	jal displayDoodler
 	
 	jal sleep
