@@ -119,17 +119,38 @@ main:
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	li $s2, 1		# $s2 is 1 if the game should continue running, 0 if it should reset to initial position and freeze
 	
+	add $t0, $zero, $zero # $t0 holds i=0
+	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
+	GENERATE_LOOP1:
+		bge $t0, $t1, DISPLAY1 	# exit if $t0 >= $t1 (i >= 3)
+		jal generateRandom 	# generate a random number in the range of [0, 1008}
+		sll $a1, $t0, 2		# offset = i*4
+		jal insertNumber	# insert this number into (offset)$s4 = (i*4)$s4
+		addi $t0, $t0, 1	# increment i += 1
+		j GENERATE_LOOP1 	# if reached, continue to loop
+	
+DISPLAY1:	jal displayBackground
+		jal displayPlatforms
+		jal displayDoodler
+IF:
+	lw $t8, 0xffff0000	# load the value at this address
+	bne $t8, 1, IF
+ELSE:	
+	lw $t2, 0xffff0004	# load the ascii key of the character that was pressed
+	bne $t2, 0x73, IF	# if the character is not 's' then go back to IF
+	j GAME_LOOP		# else, proceed to the game
+
 GAME_LOOP:
 	beqz $s2, EXIT
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
-	GENERATE_LOOP:
+	GENERATE_LOOP2:
 		bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		jal generateRandom 			# generate a random number in the range of [0, 1008}
 		sll $a1, $t0, 2				# offset = i*4
 		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
 		addi $t0, $t0, 1			# increment i += 1
-		j GENERATE_LOOP 			# if reached, continue to loop
+		j GENERATE_LOOP2 			# if reached, continue to loop
 		
 	GENERATE_LOOP_EXIT:
 	jal displayBackground
@@ -139,9 +160,9 @@ GAME_LOOP:
 	jal sleep
 	j GAME_LOOP
 				
-	EXIT:
-	li $v0, 10
-	syscall
+EXIT:
+li $v0, 10
+syscall
 	
 
 	 
