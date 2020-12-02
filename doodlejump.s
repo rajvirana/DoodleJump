@@ -109,7 +109,6 @@ displayDoodler:
 		
 main:
 	# initialize saved registers
-	lw $s2, doodlerColour 	# $s2 holds the doodler's colour
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
 	
