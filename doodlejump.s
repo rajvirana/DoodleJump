@@ -150,12 +150,11 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 		bne $v0, 1, IF	# if 's' was pressed, start the game
 		j GAME_LOOP
 	
-#ELSE:		lw $t2, 0xffff0004	# load the ascii key of the character that was pressed
-		#bne $t2, 0x73, IF	# if the character is not 's' then go back to IF
-		#j GAME_LOOP		# else, proceed to the game
-
 GAME_LOOP:	beqz $s2, EXIT
-	
+		jal checkKeyboardInput	# check if a key has been pressed
+		
+		beq $v0, 1, IF		# if 's' has been pressed, then go back to IF		
+		
 ###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
 		add $t0, $zero, $zero # $t0 holds i=0
 		addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
