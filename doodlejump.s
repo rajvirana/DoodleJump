@@ -125,7 +125,13 @@ RESPOND_K:		li $v0, 3
 			
 NO_KEY:			add $v0, $zero, $zero	# ensure that $v0 = 0 if no key was pressed
 EXIT_CHECK_BOARD:	jr $ra			# exit the function
-			
+
+# function that moves the doodler one unit left
+doodlerLeft:
+	lw $t0, 0($s1)		# load the current position of the doodler into $t0
+	addi $t0, $t0, -4	# subtract 4 pixels from the previous position
+	sw $t0, 0($s1)		# set this as the new position of the doodler
+	jr $ra		
 		
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
@@ -142,8 +148,8 @@ GENERATE_LOOP1:	bge $t0, $t1, DISPLAY1 	# exit if $t0 >= $t1 (i >= 3)
 		j GENERATE_LOOP1 	# if reached, continue to loop
 	
 DISPLAY1:	jal displayBackground
-		li $a0, 3776
 		jal displayPlatforms
+		li $a0, 3776
 		jal displayDoodler
 			
 IF:		jal checkKeyboardInput	# check for keyboard input
@@ -151,12 +157,17 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 		j GAME_LOOP
 	
 GAME_LOOP:	beqz $s2, EXIT
-		jal checkKeyboardInput	# check if a key has been pressed
+		jal checkKeyboardInput		# check if a key has been pressed
 		
-		beq $v0, 1, IF		# if 's' has been pressed, then go back to IF		
+		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
+		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
+		#beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
+		j START_2
+
+MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left		
 		
 ###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
-		add $t0, $zero, $zero # $t0 holds i=0
+START_2:	add $t0, $zero, $zero # $t0 holds i=0
 		addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
 GENERATE_LOOP2:	bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		jal generateRandom 			# generate a random number in the range of [0, 1008}
@@ -165,12 +176,10 @@ GENERATE_LOOP2:	bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		addi $t0, $t0, 1			# increment i += 1
 		j GENERATE_LOOP2 			# if reached, continue to loop
 ################################################################################################
-	
-# check for keyboard input and if it is 's', stop the game (i.e. return to IF)
 		
 GENERATE_LOOP_EXIT:	jal displayBackground
 			jal displayPlatforms
-			li $a0, 3776
+			lw $a0, 0($s1)
 			jal displayDoodler
 	
 			jal sleep
