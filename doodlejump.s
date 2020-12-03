@@ -133,9 +133,24 @@ doodlerLeft:
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra
 
+# function that moves the doodler one unit right
 doodlerRight:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
 	addi $t0, $t0, 4	# subtract 4 pixels from the previous position
+	sw $t0, 0($s1)		# set this as the new position of the doodler
+	jr $ra
+
+# function that moves the doodler up
+doodlerUp:
+	lw $t0, 0($s1)		# load the current position of the doodler into $t0
+	addi $t0, $t0, -128	# subtract 128 pixels from the previous position to make the doodler move UP
+	sw $t0, 0($s1)		# set this as the new position of the doodler
+	jr $ra
+
+# function that moves the doodler down
+doodlerDown:
+	lw $t0, 0($s1)		# load the current position of the doodler into $t0
+	addi $t0, $t0, 128	# add 128 pixels from the previous position to make the doodler move DOWN
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra		
 		
@@ -160,6 +175,7 @@ DISPLAY1:	jal displayBackground
 			
 IF:		jal checkKeyboardInput	# check for keyboard input
 		bne $v0, 1, IF	# if 's' was pressed, start the game
+		li $s3, 0			# $s3 is the counter to determine if the doodler should jump or down
 		j GAME_LOOP
 	
 GAME_LOOP:	beqz $s2, EXIT
@@ -170,13 +186,15 @@ GAME_LOOP:	beqz $s2, EXIT
 		beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
 		j START_2
 
-MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left	
+MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left
+		jal doodlerUp	
 		j START_2
-MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right	
-		
+MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right
+		jal doodlerUp
+
 ###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
-START_2:	add $t0, $zero, $zero # $t0 holds i=0
-		addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
+START_2:	add $t0, $zero, $zero 			# $t0 holds i=0
+		addi $t1, $zero, 3 			# $t1 holds 3, the maximum number of platforms to display
 GENERATE_LOOP2:	bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		jal generateRandom 			# generate a random number in the range of [0, 1008}
 		sll $a1, $t0, 2				# offset = i*4
