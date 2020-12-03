@@ -131,6 +131,12 @@ doodlerLeft:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
 	addi $t0, $t0, -4	# subtract 4 pixels from the previous position
 	sw $t0, 0($s1)		# set this as the new position of the doodler
+	jr $ra
+
+doodlerRight:
+	lw $t0, 0($s1)		# load the current position of the doodler into $t0
+	addi $t0, $t0, 4	# subtract 4 pixels from the previous position
+	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra		
 		
 main:	# initialize saved registers
@@ -161,10 +167,12 @@ GAME_LOOP:	beqz $s2, EXIT
 		
 		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
 		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
-		#beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
+		beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
 		j START_2
 
-MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left		
+MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left	
+		j START_2
+MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right	
 		
 ###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
 START_2:	add $t0, $zero, $zero # $t0 holds i=0
