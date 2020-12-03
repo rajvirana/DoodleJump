@@ -13,7 +13,7 @@
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestone is reached in this submission?
-# - Milestone 1
+# - Milestone 2
 #
 
 .data
@@ -179,7 +179,16 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 		j GAME_LOOP
 	
 GAME_LOOP:	beqz $s2, EXIT
-		jal checkKeyboardInput		# check if a key has been pressed
+		
+		bge $s3, 6, MOVE_DOWN		# if $s3 >= 6, then it's time for the doodler to descend
+MOVE_UP:	jal doodlerUp			# else, move the doodler up
+		addi $s3, $s3, 1		# increment the counter by 1
+		j GAME_INPUT			# proceed to check for keyboard input
+MOVE_DOWN:	jal doodlerDown
+		addi $s3, $s3, 1		# increment the counter by 1
+		j START_2			# if moving down, the user has no choice but to pray to land on a platform
+		
+GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
 		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
 		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
@@ -187,10 +196,8 @@ GAME_LOOP:	beqz $s2, EXIT
 		j START_2
 
 MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left
-		jal doodlerUp	
 		j START_2
 MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right
-		jal doodlerUp
 
 ###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
 START_2:	add $t0, $zero, $zero 			# $t0 holds i=0
@@ -203,10 +210,11 @@ GENERATE_LOOP2:	bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
 		j GENERATE_LOOP2 			# if reached, continue to loop
 ################################################################################################
 		
-GENERATE_LOOP_EXIT:	jal displayBackground
+GENERATE_LOOP_EXIT:	# draw screen
+			jal displayBackground
 			jal displayPlatforms
 			lw $a0, 0($s1)
-			jal displayDoodler
+			jal displayDoodler			
 	
 			jal sleep
 			j GAME_LOOP
