@@ -186,29 +186,18 @@ MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		j GAME_INPUT			# proceed to check for keyboard input
 MOVE_DOWN:	jal doodlerDown
 		addi $s3, $s3, 1		# increment the counter by 1
-		j START_2			# if moving down, the user has no choice but to pray to land on a platform
+		j GENERATE_LOOP_EXIT		# DELETE THIS WHEN IMPLEMENTING COLLISION DETECTION
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
 		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
 		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
 		beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
-		j START_2
+		j GENERATE_LOOP_EXIT
 
 MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left
-		j START_2
+		j GENERATE_LOOP_EXIT
 MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right
-
-###### NOTE THAT THIS SECTION WILL BE REPLACED WITH A CALCULATE/UPDATE PLATFORMS FUNCTION ######
-START_2:	add $t0, $zero, $zero 			# $t0 holds i=0
-		addi $t1, $zero, 3 			# $t1 holds 3, the maximum number of platforms to display
-GENERATE_LOOP2:	bge $t0, $t1, GENERATE_LOOP_EXIT 	# exit if $t0 >= $t1 (i >= 3)
-		jal generateRandom 			# generate a random number in the range of [0, 1008}
-		sll $a1, $t0, 2				# offset = i*4
-		jal insertNumber			# insert this number into (offset)$s4 = (i*4)$s4
-		addi $t0, $t0, 1			# increment i += 1
-		j GENERATE_LOOP2 			# if reached, continue to loop
-################################################################################################
 		
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
