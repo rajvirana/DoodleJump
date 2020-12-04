@@ -101,7 +101,7 @@ displayDoodler:	lw $t0, displayAddress	# load the displayAddress into $t0
 
 # function to make the program sleep for a certain number of milliseconds
 sleep:	li $v0, 32
-	li $a0, 1000
+	li $a0, 200
 	syscall
 	jr $ra
 
@@ -180,7 +180,7 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 	
 GAME_LOOP:	beqz $s2, EXIT
 		
-		bge $s3, 6, MOVE_DOWN		# if $s3 >= 6, then it's time for the doodler to descend
+		bge $s3, 8, MOVE_DOWN		# if $s3 >= 6, then it's time for the doodler to descend
 MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		addi $s3, $s3, 1		# increment the counter by 1
 		j GAME_INPUT			# proceed to check for keyboard input
