@@ -88,15 +88,15 @@ DISPLAY_PLATFORMS_EXIT:	jr $ra
 # function to display doodler on screen
 displayDoodler:	lw $t0, displayAddress	# load the displayAddress into $t0
 		lw $t1, doodlerColour 	# load the doodlerColour into $t1
-		add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3776 is the initial position)
+		add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3648 is the initial position)
 		sw $t2, 0($s1)		# save the doodler's current location
-		add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAdress
-		sw $t1, 0($t3)
-		sw $t1, 124($t3)
-		sw $t1, 128($t3)
-		sw $t1, 132($t3)
-		sw $t1, 252($t3)
-		sw $t1, 260($t3)
+		add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAddress
+		sw $t1, 0($t3)		# head
+		sw $t1, 124($t3)	# body left
+		sw $t1, 128($t3)	# body middle
+		sw $t1, 132($t3)	# body right
+		sw $t1, 252($t3)	# left foot
+		sw $t1, 260($t3)	# right foot
 		jr $ra
 
 # function to make the program sleep for a certain number of milliseconds
@@ -129,14 +129,14 @@ EXIT_CHECK_BOARD:	jr $ra			# exit the function
 # function that moves the doodler one unit left
 doodlerLeft:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, -4	# subtract 4 pixels from the previous position
+	addi $t0, $t0, -8	# subtract 4 pixels from the previous position
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra
 
 # function that moves the doodler one unit right
 doodlerRight:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, 4	# subtract 4 pixels from the previous position
+	addi $t0, $t0, 8	# subtract 4 pixels from the previous position
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra
 
@@ -152,8 +152,29 @@ doodlerDown:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
 	addi $t0, $t0, 128	# add 128 pixels from the previous position to make the doodler move DOWN
 	sw $t0, 0($s1)		# set this as the new position of the doodler
-	jr $ra		
-		
+	jr $ra
+
+# function that checks for collision
+checkPlatformCollision:		lw $t0, 0($s1)				# load the doodler's location into $t0 (unit-wise)
+				lw $t1, displayAddress			# the displayAddress
+				lw $t7, platformColour 			# the colour of the platform
+				addi $t2, $t0, 252			# left foot (unit-wise)
+				addi $t3, $t0, 260			# right foot (unit-wise)
+				addi $t4, $t2, 128			# the position directly underneath the left foot (unit-wise)
+				add $t5, $t4, $t1			# the position directly underneath the left foot in relation to the displayAddress
+				lw $t6, 0($t5)				# load the word at this index of the displayAddress
+				bne $t6, $t7, CHECK_RIGHT_FOOT		# if the position underneath the left foot is the colour brown
+				addi $v0, $zero, 1
+				j EXIT_CHECK_COLLISION			# if it is, then collision has been detected, return true
+CHECK_RIGHT_FOOT:		addi $t4, $t3, 128			# the position directly underneat the right foot (unit-wise)
+				add $t5, $t4, $t1			# the position directly underneath the right foot in realtion to the displayAddress
+				lw $t6, 0($t5)				# load the word at this index of the displayAddress
+				bne $t6, $t7, COLLISION_UNDETECTED	# check if the position underneath the right foot is the colour brown
+				addi $v0, $zero, 1
+				j EXIT_CHECK_COLLISION			# collision has been detected, return true
+COLLISION_UNDETECTED:		add $v0, $zero, $zero			# if it hasn't then there is no collision, return false
+EXIT_CHECK_COLLISION:		jr $ra
+
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
@@ -170,7 +191,7 @@ GENERATE_LOOP1:	bge $t0, $t1, DISPLAY1 	# exit if $t0 >= $t1 (i >= 3)
 	
 DISPLAY1:	jal displayBackground
 		jal displayPlatforms
-		li $a0, 3776
+		li $a0, 3648
 		jal displayDoodler
 			
 IF:		jal checkKeyboardInput	# check for keyboard input
@@ -180,25 +201,27 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 	
 GAME_LOOP:	beqz $s2, EXIT
 		
-		bge $s3, 8, MOVE_DOWN		# if $s3 >= 6, then it's time for the doodler to descend
+		bge $s3, 10, MOVE_DOWN		# if $s3 >= 10, then it's time for the doodler to descend
 MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		addi $s3, $s3, 1		# increment the counter by 1
 		j GAME_INPUT			# proceed to check for keyboard input
 MOVE_DOWN:	jal doodlerDown
-		addi $s3, $s3, 1		# increment the counter by 1
-		j GENERATE_LOOP_EXIT		# DELETE THIS WHEN IMPLEMENTING COLLISION DETECTION
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
 		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
 		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
 		beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
-		j GENERATE_LOOP_EXIT
+		j CHECK_COLLISION_GAME
 
 MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves left
-		j GENERATE_LOOP_EXIT
+		j CHECK_COLLISION_GAME
 MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right
-		
+
+CHECK_COLLISION_GAME:	jal checkPlatformCollision
+			bne $v0, 1, GENERATE_LOOP_EXIT
+			add $s3, $zero, $zero
+
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
 			jal displayPlatforms
