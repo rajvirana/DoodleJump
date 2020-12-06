@@ -43,21 +43,20 @@ BG_LOOP:		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
 BG_LOOP_EXIT:		jr $ra
 
 # function for generating a random number (used to decide where a platform should be drawn)
-generateRandom:	
-		li $v0, 42
-		li $a0, 0
-		li $a1, 752
-		syscall # random number will be in $a0
-		addi $a0, $a0, 256
-		jr $ra 	# jump back to where we left off in main
+generateRandom:		li $v0, 42
+			li $a0, 0
+			li $a1, 752
+			syscall # random number will be in $a0
+			addi $a0, $a0, 256
+			jr $ra 	# jump back to where we left off in main
 	
 # function for inserting the random number generated into the correct position of $s4
 # PARAMETERS: $a0 - random number, $a1 - offset needed to get platforms[i]
-insertNumber:	add $t2, $a0, $zero 	# load the value in $a0 into $t2
-		add $t3, $a1, $zero	# load the offset value into $t3
-		add $t3, $t3, $s0 	# get platforms[i] by getting the address offset bits away from $s0
-		sw $t2, 0($t3)		# load the number into platforms[i]
-		jr $ra
+insertNumber:		add $t2, $a0, $zero 	# load the value in $a0 into $t2
+			add $t3, $a1, $zero	# load the offset value into $t3
+			add $t3, $t3, $s0 	# get platforms[i] by getting the address offset bits away from $s0
+			sw $t2, 0($t3)		# load the number into platforms[i]
+			jr $ra
 
 # function for displaying the 3 platforms on the screen utilizing the platforms array in $s4 (size = 3)
 displayPlatforms:	lw $t9, displayAddress
@@ -88,24 +87,24 @@ EXIT_DISPLAY_SUB_LOOP:	addi $t0, $t0, 1			# increment i += 1
 DISPLAY_PLATFORMS_EXIT:	jr $ra
 
 # function to display doodler on screen
-displayDoodler:	lw $t0, displayAddress	# load the displayAddress into $t0
-		lw $t1, doodlerColour 	# load the doodlerColour into $t1
-		add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3648 is the initial position)
-		sw $t2, 0($s1)		# save the doodler's current location
-		add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAddress
-		sw $t1, 0($t3)		# head
-		sw $t1, 124($t3)	# body left
-		sw $t1, 128($t3)	# body middle
-		sw $t1, 132($t3)	# body right
-		sw $t1, 252($t3)	# left foot
-		sw $t1, 260($t3)	# right foot
-		jr $ra
+displayDoodler:		lw $t0, displayAddress	# load the displayAddress into $t0
+			lw $t1, doodlerColour 	# load the doodlerColour into $t1
+			add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3648 is the initial position)
+			sw $t2, 0($s1)		# save the doodler's current location
+			add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAddress
+			sw $t1, 0($t3)		# head
+			sw $t1, 124($t3)	# body left
+			sw $t1, 128($t3)	# body middle
+			sw $t1, 132($t3)	# body right
+			sw $t1, 252($t3)	# left foot
+			sw $t1, 260($t3)	# right foot
+			jr $ra
 
 # function to make the program sleep for a certain number of milliseconds
-sleep:	li $v0, 32
-	li $a0, 200
-	syscall
-	jr $ra
+sleep:			li $v0, 32
+			li $a0, 200
+			syscall
+			jr $ra
 
 # function that checks for keyboard input
 checkKeyboardInput:	lw $t8, 0xffff0000	# load the value at this address into $t8
@@ -129,32 +128,28 @@ NO_KEY:			add $v0, $zero, $zero	# ensure that $v0 = 0 if no key was pressed
 EXIT_CHECK_BOARD:	jr $ra			# exit the function
 
 # function that moves the doodler one unit left
-doodlerLeft:
-	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, -12	# subtract 4 pixels from the previous position
-	sw $t0, 0($s1)		# set this as the new position of the doodler
-	jr $ra
+doodlerLeft:		lw $t0, 0($s1)		# load the current position of the doodler into $t0
+			addi $t0, $t0, -12	# subtract 4 pixels from the previous position
+			sw $t0, 0($s1)		# set this as the new position of the doodler
+			jr $ra
 
 # function that moves the doodler one unit right
-doodlerRight:
-	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, 12	# subtract 4 pixels from the previous position
-	sw $t0, 0($s1)		# set this as the new position of the doodler
-	jr $ra
+doodlerRight:		lw $t0, 0($s1)		# load the current position of the doodler into $t0
+			addi $t0, $t0, 12	# subtract 4 pixels from the previous position
+			sw $t0, 0($s1)		# set this as the new position of the doodler
+			jr $ra
 
 # function that moves the doodler up
-doodlerUp:
-	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, -128	# subtract 128 pixels from the previous position to make the doodler move UP
-	sw $t0, 0($s1)		# set this as the new position of the doodler
-	jr $ra
+doodlerUp:		lw $t0, 0($s1)		# load the current position of the doodler into $t0
+			addi $t0, $t0, -128	# subtract 128 pixels from the previous position to make the doodler move UP
+			sw $t0, 0($s1)		# set this as the new position of the doodler
+			jr $ra
 
 # function that moves the doodler down
-doodlerDown:
-	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, 128	# add 128 pixels from the previous position to make the doodler move DOWN
-	sw $t0, 0($s1)		# set this as the new position of the doodler
-	jr $ra
+doodlerDown:		lw $t0, 0($s1)		# load the current position of the doodler into $t0
+			addi $t0, $t0, 128	# add 128 pixels from the previous position to make the doodler move DOWN
+			sw $t0, 0($s1)		# set this as the new position of the doodler
+			jr $ra
 
 # function that checks for collision
 checkPlatformCollision:		lw $t0, 0($s1)				# load the doodler's location into $t0 (unit-wise)
@@ -190,6 +185,28 @@ MOVE_PLATFORMS_LOOP:		bge $t0, $t1, EXIT_MOVE_PLATFORMS	# while i < 3
 				addi $t0, $t0, 1			# i += 1
 				j MOVE_PLATFORMS_LOOP		
 EXIT_MOVE_PLATFORMS:		jr $ra
+
+# function to generate new platforms onto the screen
+generateNewPlatforms:		lw $t0, displayAddress
+				addi $t5, $zero, 1024			# the max value in displayAddress
+				add $t1, $zero, $zero			# i = 0
+				addi $t2, $zero, 3			# limit = 3
+NEW_PLATFORMS_LOOP:		bge $t1, $t2, EXIT_NEW_PLATFORMS_LOOP	# while i < 3
+				sll $t3, $t1, 2				# offset = i*4
+				add $t3, $t3, $s0			# the address of platforms[i]
+				lw $t4, 0($t3)				# the value at platforms[i]
+				blt $t4, $t5, NEW_PLATFORMS_INCREMENT	# if platforms[i] >= displayAddress + 1024
+				addi $t6, $zero, 16			# generate a new number in the top half of the array
+				sw $t6, 0($t3)				# insert it into platforms[i]					
+NEW_PLATFORMS_INCREMENT:	addi $t1, $t1, 1			# i += 1
+				j NEW_PLATFORMS_LOOP
+EXIT_NEW_PLATFORMS_LOOP:	jr $ra
+				# loop through platforms array ($s0)
+	# check if the value stored at platforms[i] is >= displayAddress + 1024.
+	# if platforms[i] >= displayAddress + 1024
+	# generate a new platforms in the top half of the screen  (third?)
+	# write it into platforms[i]
+	# increment
 
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
@@ -227,6 +244,7 @@ MOVE_DOWN:	jal doodlerDown
 UPDATE_PLATFORMS:	lw $t0, 0($s1)
 			bge $t0, 1536, GAME_INPUT
 			jal movePlatforms
+			jal generateNewPlatforms
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
