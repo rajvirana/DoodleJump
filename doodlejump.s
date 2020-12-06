@@ -43,10 +43,12 @@ BG_LOOP:		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
 BG_LOOP_EXIT:		jr $ra
 
 # function for generating a random number (used to decide where a platform should be drawn)
-generateRandom:	li $v0, 42
+generateRandom:	
+		li $v0, 42
 		li $a0, 0
-		li $a1, 1008
+		li $a1, 752
 		syscall # random number will be in $a0
+		addi $a0, $a0, 256
 		jr $ra 	# jump back to where we left off in main
 	
 # function for inserting the random number generated into the correct position of $s4
@@ -129,14 +131,14 @@ EXIT_CHECK_BOARD:	jr $ra			# exit the function
 # function that moves the doodler one unit left
 doodlerLeft:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, -8	# subtract 4 pixels from the previous position
+	addi $t0, $t0, -12	# subtract 4 pixels from the previous position
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra
 
 # function that moves the doodler one unit right
 doodlerRight:
 	lw $t0, 0($s1)		# load the current position of the doodler into $t0
-	addi $t0, $t0, 8	# subtract 4 pixels from the previous position
+	addi $t0, $t0, 12	# subtract 4 pixels from the previous position
 	sw $t0, 0($s1)		# set this as the new position of the doodler
 	jr $ra
 
@@ -160,6 +162,7 @@ checkPlatformCollision:		lw $t0, 0($s1)				# load the doodler's location into $t
 				lw $t7, platformColour 			# the colour of the platform
 				addi $t2, $t0, 252			# left foot (unit-wise)
 				addi $t3, $t0, 260			# right foot (unit-wise)
+				
 				addi $t4, $t2, 128			# the position directly underneath the left foot (unit-wise)
 				add $t5, $t4, $t1			# the position directly underneath the left foot in relation to the displayAddress
 				lw $t6, 0($t5)				# load the word at this index of the displayAddress
@@ -175,6 +178,19 @@ CHECK_RIGHT_FOOT:		addi $t4, $t3, 128			# the position directly underneat the ri
 COLLISION_UNDETECTED:		add $v0, $zero, $zero			# if it hasn't then there is no collision, return false
 EXIT_CHECK_COLLISION:		jr $ra
 
+# function to move the EXISTING platforms down
+movePlatforms:			add $t0, $zero, $zero			# i = 0
+				addi $t1, $zero, 3			# limit = 3
+MOVE_PLATFORMS_LOOP:		bge $t0, $t1, EXIT_MOVE_PLATFORMS	# while i < 3
+				sll $t2, $t0, 2				# offset = i*4
+				add $t2, $t2, $s0			# the address of platforms[i]
+				lw $t3, 0($t2)				# load the position of platforms[i] into $t3
+				addi $t3, $t3, 512			# move this platform down by 25 rows
+				sw $t3, 0($t2)				# write this back into platforms[i]
+				addi $t0, $t0, 1			# i += 1
+				j MOVE_PLATFORMS_LOOP		
+EXIT_MOVE_PLATFORMS:		jr $ra
+
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
@@ -182,7 +198,8 @@ main:	# initialize saved registers
 	
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
-GENERATE_LOOP1:	bge $t0, $t1, DISPLAY1 	# exit if $t0 >= $t1 (i >= 3)
+GENERATE_LOOP1:	bge $t0, $t1, DISPLAY1	# exit if $t0 >= $t1 (i >= 3)
+		addi $a2, $zero, 752
 		jal generateRandom 	# generate a random number in the range of [0, 1008}
 		sll $a1, $t0, 2		# offset = i*4
 		jal insertNumber	# insert this number into (offset)$s4 = (i*4)$s4
@@ -221,6 +238,9 @@ MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
 			bne $v0, 1, GENERATE_LOOP_EXIT
 			add $s3, $zero, $zero
+			
+			bgt $s3, 1536, GENERATE_LOOP_EXIT
+			jal movePlatforms
 
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
