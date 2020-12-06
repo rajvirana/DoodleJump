@@ -186,8 +186,17 @@ MOVE_PLATFORMS_LOOP:		bge $t0, $t1, EXIT_MOVE_PLATFORMS	# while i < 3
 				j MOVE_PLATFORMS_LOOP		
 EXIT_MOVE_PLATFORMS:		jr $ra
 
+# function to generate a new random number in the top half of the screen
+generateNewRandom:	li $v0, 42
+			li $a0, 0
+			li $a1, 128
+			syscall # random number will be in $a0
+			addi $a0, $a0, 64
+			jr $ra 	# jump back to where we left off in generateNewPlatforms
+
 # function to generate new platforms onto the screen
-generateNewPlatforms:		lw $t0, displayAddress
+generateNewPlatforms:		addi $sp, $sp, -4			# move stack pointer a word
+				sw $ra, 0($sp)				# push link to main onto the stack
 				addi $t5, $zero, 1024			# the max value in displayAddress
 				add $t1, $zero, $zero			# i = 0
 				addi $t2, $zero, 3			# limit = 3
@@ -195,18 +204,26 @@ NEW_PLATFORMS_LOOP:		bge $t1, $t2, EXIT_NEW_PLATFORMS_LOOP	# while i < 3
 				sll $t3, $t1, 2				# offset = i*4
 				add $t3, $t3, $s0			# the address of platforms[i]
 				lw $t4, 0($t3)				# the value at platforms[i]
-				blt $t4, $t5, NEW_PLATFORMS_INCREMENT	# if platforms[i] >= displayAddress + 1024
-				addi $t6, $zero, 16			# generate a new number in the top half of the array
+				blt $t4, $t5, NEW_PLATFORMS_INCREMENT	# if platforms[i] >= 1024
+				li $v0, 42
+				li $a0, 0
+				li $a1, 128
+				syscall # random number will be in $a0
+				addi $a0, $a0, 64
+				#jal generateNewPlatforms		# generate a new number in the top part of the array
+				add $t6, $zero, $a0			# load the random number into $t6			
 				sw $t6, 0($t3)				# insert it into platforms[i]					
 NEW_PLATFORMS_INCREMENT:	addi $t1, $t1, 1			# i += 1
 				j NEW_PLATFORMS_LOOP
-EXIT_NEW_PLATFORMS_LOOP:	jr $ra
-				# loop through platforms array ($s0)
-	# check if the value stored at platforms[i] is >= displayAddress + 1024.
-	# if platforms[i] >= displayAddress + 1024
-	# generate a new platforms in the top half of the screen  (third?)
-	# write it into platforms[i]
-	# increment
+EXIT_NEW_PLATFORMS_LOOP:	lw $ra, 0($sp)				# pop a word off the stack
+				addi $sp, $sp, 4			# move stack pointer a word
+				jr $ra
+
+# function to update the doodler's position after jumping to high up
+updateDoodlerLoc:		lw $t0, 0($s1)				# load the doodler's current position
+				addi $t0, $t0, 128				# add 4 rows to the doodler
+				sw $t0, 0($s1)				# write this into $s1
+				jr $ra
 
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
@@ -245,6 +262,7 @@ UPDATE_PLATFORMS:	lw $t0, 0($s1)
 			bge $t0, 1536, GAME_INPUT
 			jal movePlatforms
 			jal generateNewPlatforms
+			jal updateDoodlerLoc
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
