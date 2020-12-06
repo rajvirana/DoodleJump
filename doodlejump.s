@@ -185,7 +185,7 @@ MOVE_PLATFORMS_LOOP:		bge $t0, $t1, EXIT_MOVE_PLATFORMS	# while i < 3
 				sll $t2, $t0, 2				# offset = i*4
 				add $t2, $t2, $s0			# the address of platforms[i]
 				lw $t3, 0($t2)				# load the position of platforms[i] into $t3
-				addi $t3, $t3, 512			# move this platform down by 25 rows
+				addi $t3, $t3, 256			# move this platform down by 25 rows
 				sw $t3, 0($t2)				# write this back into platforms[i]
 				addi $t0, $t0, 1			# i += 1
 				j MOVE_PLATFORMS_LOOP		
@@ -221,8 +221,12 @@ GAME_LOOP:	beqz $s2, EXIT
 		bge $s3, 10, MOVE_DOWN		# if $s3 >= 10, then it's time for the doodler to descend
 MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		addi $s3, $s3, 1		# increment the counter by 1
-		j GAME_INPUT			# proceed to check for keyboard input
+		j UPDATE_PLATFORMS		# proceed to check for keyboard input
 MOVE_DOWN:	jal doodlerDown
+
+UPDATE_PLATFORMS:	lw $t0, 0($s1)
+			bge $t0, 1536, GAME_INPUT
+			jal movePlatforms
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
@@ -238,9 +242,6 @@ MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
 			bne $v0, 1, GENERATE_LOOP_EXIT
 			add $s3, $zero, $zero
-			
-			bgt $s3, 1536, GENERATE_LOOP_EXIT
-			jal movePlatforms
 
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
