@@ -218,7 +218,7 @@ IF:		jal checkKeyboardInput	# check for keyboard input
 	
 GAME_LOOP:	beqz $s2, EXIT
 		
-		bge $s3, 10, MOVE_DOWN		# if $s3 >= 10, then it's time for the doodler to descend
+		bge $s3, 12, MOVE_DOWN		# if $s3 >= 10, then it's time for the doodler to descend
 MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		addi $s3, $s3, 1		# increment the counter by 1
 		j UPDATE_PLATFORMS		# proceed to check for keyboard input
