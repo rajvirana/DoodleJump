@@ -207,9 +207,9 @@ NEW_PLATFORMS_LOOP:		bge $t1, $t2, EXIT_NEW_PLATFORMS_LOOP	# while i < 3
 				blt $t4, $t5, NEW_PLATFORMS_INCREMENT	# if platforms[i] >= 1024
 				li $v0, 42
 				li $a0, 0
-				li $a1, 128
+				li $a1, 256
 				syscall # random number will be in $a0
-				addi $a0, $a0, 64
+				addi $a0, $a0, 256
 				#jal generateNewPlatforms		# generate a new number in the top part of the array
 				add $t6, $zero, $a0			# load the random number into $t6			
 				sw $t6, 0($t3)				# insert it into platforms[i]					
@@ -221,7 +221,7 @@ EXIT_NEW_PLATFORMS_LOOP:	lw $ra, 0($sp)				# pop a word off the stack
 
 # function to update the doodler's position after jumping to high up
 updateDoodlerLoc:		lw $t0, 0($s1)				# load the doodler's current position
-				addi $t0, $t0, 128				# add 4 rows to the doodler
+				addi $t0, $t0, 1024			# add 4 rows to the doodler
 				sw $t0, 0($s1)				# write this into $s1
 				jr $ra
 
