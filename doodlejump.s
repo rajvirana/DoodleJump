@@ -22,8 +22,8 @@ background: .word 0xbaedff 		# the background colour
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
-doodlerLoc: .space 4			# the top most coordinate of the doodler
-
+doodlerLoc: .space 4			# the top most coordinate of the doodler	
+myMessage: .asciiz  "Game Over\n"
 .text
 j main
 
@@ -276,9 +276,16 @@ MOVE_LEFT:	jal doodlerLeft			# change the coordinate so that the doodler moves l
 MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves right
 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
-			bne $v0, 1, GENERATE_LOOP_EXIT
+			bne $v0, 1, CHECK_ILLEGAL_AREA
 			add $s3, $zero, $zero
 
+CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
+			li $t1, 4096
+			ble $t0, $t1, GENERATE_LOOP_EXIT
+			li $v0, 4
+			la $a0, myMessage
+			syscall
+		
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
 			jal displayPlatforms
