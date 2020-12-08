@@ -286,7 +286,61 @@ gameOver:			lw $t0, displayAddress
 				sw $t1, 580($t3)			# bottom line of E done
 				sw $t1, 320($t3)			# E done
 				
+				sw $t1, 768($t3)			# top line of O
+				sw $t1, 772($t3)
+				sw $t1, 776($t3)
+				sw $t1, 780($t3)			# end of O top line
+				sw $t1, 908($t3)			# start of right vertical line of O
+				sw $t1, 1036($t3)
+				sw $t1, 1164($t3)
+				sw $t1, 1292($t3)
+				sw $t1, 1420($t3)			# end of right vertical line and start of bottom line of O
+				sw $t1, 1416($t3)
+				sw $t1, 1412($t3)
+				sw $t1, 1408($t3)			# end of bottom line of O and start of left vertical line of O
+				sw $t1, 1280($t3)
+				sw $t1, 1152($t3)
+				sw $t1, 1024($t3)
+				sw $t1, 896($t3)			# O done
 				
+				sw $t1, 788($t3)			# left part of V
+				sw $t1, 916($t3)
+				sw $t1, 1044($t3)
+				sw $t1, 1172($t3)
+				sw $t1, 1300($t3)
+				sw $t1, 1432($t3)			# point of V
+				sw $t1, 1308($t3)			# start of the right part of V from bottom up
+				sw $t1, 1180($t3)
+				sw $t1, 1052($t3)
+				sw $t1, 924($t3)			
+				sw $t1, 796($t3)			# V done
+				
+				sw $t1, 804($t3)			# top line of E
+				sw $t1, 808($t3)
+				sw $t1, 812($t3)			# end of top line of E
+				sw $t1, 932($t3)			# start of vertical line of E
+				sw $t1, 1060($t3)
+				sw $t1, 1188($t3)
+				sw $t1, 1316($t3)			# end of vertical line of E
+				sw $t1, 1320($t3)			# start of bottom line of E
+				sw $t1, 1324($t3)			# end of bottom line of E
+				sw $t1, 1064($t3)			# middle part of E
+				
+				sw $t1, 820($t3)			# start of the top line of R
+				sw $t1, 824($t3)
+				sw $t1, 828($t3)
+				sw $t1, 832($t3)			# end of top line of R
+				sw $t1, 948($t3)			# start of vertical line of R
+				sw $t1, 1076($t3)
+				sw $t1, 1204($t3)
+				sw $t1, 1332($t3)			# end of vertical line of R
+				sw $t1, 960($t3)			# right vertical line of R
+				sw $t1, 1088($t3)			# end of vertical line of R
+				sw $t1, 1084($t3)			# start of the horizonal line of R
+				sw $t1, 1080($t3)			# end of the horizontal line of R
+				sw $t1, 1212($t3)			# start of diagonal of R
+				sw $t1, 1344($t3)			# R done
+					
 				jr $ra
 
 main:	# initialize saved registers
