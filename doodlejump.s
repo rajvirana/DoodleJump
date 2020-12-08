@@ -22,8 +22,10 @@ background: .word 0xbaedff 		# the background colour
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
-doodlerLoc: .space 4			# the top most coordinate of the doodler	
+doodlerLoc: .space 4			# the top most coordinate of the doodler
+gameOverColour: .word 0x56007a		# the colour of the text for the "Game Over" screen
 myMessage: .asciiz  "Game Over\n"
+
 .text
 j main
 
@@ -224,6 +226,27 @@ updateDoodlerLoc:		lw $t0, 0($s1)				# load the doodler's current position
 				addi $t0, $t0, 1024			# add 4 rows to the doodler
 				sw $t0, 0($s1)				# write this into $s1
 				jr $ra
+				
+# function that draws the "Game Over" screen
+gameOver:			lw $t0, displayAddress
+				lw $t1, gameOverColour
+				li $t2, 672				# the coordinate of the left upper corner of the text "Game Over"
+				add $t3, $t0, $t2			# the same coordinate but in relation to the displayAddress
+				sw $t1, 0($t3)
+				sw $t1, 4($t3)
+				sw $t1, 8($t3)
+				sw $t1, 12($t3)				# first row of "G" is done
+				sw $t1, 128($t3)			# starting vertical line of "G"
+				sw $t1, 256($t3)
+				sw $t1, 384($t3)
+				sw $t1, 512($t3)			# vertical line of "G" done
+				sw $t1, 516($t3)			# starting bottom line of "G"
+				sw $t1, 520($t3)
+				sw $t1, 524($t3)			# bottom line of "G" done
+				sw $t1, 396($t3)			# building the litte tag for "G"
+				sw $t1, 268($t3)
+				sw $t1, 264($t3)			# G done
+				jr $ra
 
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
@@ -282,9 +305,11 @@ CHECK_COLLISION_GAME:	jal checkPlatformCollision
 CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
 			li $t1, 4096
 			ble $t0, $t1, GENERATE_LOOP_EXIT
+			jal gameOver
 			li $v0, 4
 			la $a0, myMessage
 			syscall
+			j EXIT
 		
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
