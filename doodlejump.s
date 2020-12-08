@@ -246,6 +246,47 @@ gameOver:			lw $t0, displayAddress
 				sw $t1, 396($t3)			# building the litte tag for "G"
 				sw $t1, 268($t3)
 				sw $t1, 264($t3)			# G done
+				
+				sw $t1, 20($t3)				# starting the top row of "A"
+				sw $t1, 24($t3)
+				sw $t1, 28($t3)				# top row of "A" done
+				sw $t1, 148($t3)			# starting the left vertical line of "A"
+				sw $t1, 276($t3)
+				sw $t1, 404($t3)
+				sw $t1, 532($t3)			# left vertical line of "A" complete
+				sw $t1, 280($t3)			# middle portion of "A"
+				sw $t1, 156($t3)			# starting the right vertical line of "A"
+				sw $t1, 284($t3)
+				sw $t1, 412($t3)
+				sw $t1, 540($t3)			# A done
+				
+				sw $t1, 36($t3)				# left top part of M
+				sw $t1, 40($t3)
+				sw $t1, 172($t3)			# the v part of M
+				sw $t1, 300($t3)			# v part of M done
+				sw $t1, 48($t3)				# right top part of M
+				sw $t1, 52($t3)				# top of M done
+				sw $t1, 164($t3)			# left vertical line of M
+				sw $t1, 292($t3)
+				sw $t1, 420($t3)
+				sw $t1, 548($t3)			# left vertical line of M done		
+				sw $t1, 180($t3)			# starting right vertical line of M
+				sw $t1, 308($t3)
+				sw $t1, 436($t3)
+				sw $t1, 564($t3)			# M done
+				
+				sw $t1, 60($t3)				# starting top of E
+				sw $t1, 64($t3)
+				sw $t1, 68($t3)				# top of E done
+				sw $t1, 188($t3)			# start of vertical line of E
+				sw $t1, 316($t3)
+				sw $t1, 444($t3)
+				sw $t1, 572($t3)			# vertical line of E done
+				sw $t1, 576($t3)			# start of bottom line of E
+				sw $t1, 580($t3)			# bottom line of E done
+				sw $t1, 320($t3)			# E done
+				
+				
 				jr $ra
 
 main:	# initialize saved registers
