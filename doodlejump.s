@@ -152,7 +152,112 @@ DRAW_TREE:		# start with drawing the leaves
 			sw $t1, 1440($t0)
 			sw $t1, 1568($t0)
 			sw $t1, 1572($t0)
-
+			
+			# drawing coconuts
+			lw $t1, coconutColour
+			sw $t1, 1792($t0)	# first coconut
+			sw $t1, 1796($t0)
+			sw $t1, 1920($t0)
+			sw $t1, 1924($t0)
+			sw $t1, 1544($t0)	# second coconut
+			sw $t1, 1548($t0)
+			sw $t1, 1672($t0)
+			sw $t1, 1676($t0)
+			sw $t1, 1808($t0)	# third coconut
+			sw $t1, 1812($t0)
+			sw $t1, 1936($t0)
+			sw $t1, 1940($t0)
+			
+			# drawing tree trunk
+			lw $t1, trunkColour
+			sw $t1, 2048($t0)	# first line
+			sw $t1, 2176($t0)
+			sw $t1, 2304($t0)
+			sw $t1, 2432($t0)
+			sw $t1, 2560($t0)
+			sw $t1, 2688($t0)
+			sw $t1, 2816($t0)
+			sw $t1, 2944($t0)
+			sw $t1, 3072($t0)
+			sw $t1, 3200($t0)
+			sw $t1, 3328($t0)
+			sw $t1, 3456($t0)
+			sw $t1, 3584($t0)
+			sw $t1, 3712($t0)
+			sw $t1, 3840($t0)
+			sw $t1, 3968($t0)	
+			sw $t1, 2052($t0)	# second line
+			sw $t1, 2180($t0)
+			sw $t1, 2308($t0)
+			sw $t1, 2436($t0)
+			sw $t1, 2564($t0)
+			sw $t1, 2692($t0)
+			sw $t1, 2820($t0)
+			sw $t1, 2948($t0)
+			sw $t1, 3076($t0)
+			sw $t1, 3204($t0)
+			sw $t1, 3332($t0)
+			sw $t1, 3460($t0)
+			sw $t1, 3588($t0)
+			sw $t1, 3716($t0)
+			sw $t1, 3844($t0)
+			sw $t1, 3972($t0)
+			
+			sw $t1, 1800($t0)	# third line
+			sw $t1, 1928($t0)
+			sw $t1, 2056($t0)	
+			sw $t1, 2184($t0)
+			sw $t1, 2312($t0)
+			sw $t1, 2440($t0)
+			sw $t1, 2568($t0)
+			sw $t1, 2696($t0)
+			sw $t1, 2824($t0)
+			sw $t1, 2952($t0)
+			sw $t1, 3080($t0)
+			sw $t1, 3208($t0)
+			sw $t1, 3336($t0)
+			sw $t1, 3464($t0)
+			sw $t1, 3592($t0)
+			sw $t1, 3720($t0)
+			sw $t1, 3848($t0)
+			sw $t1, 3976($t0)
+			
+			sw $t1, 1804($t0)	# fourth line
+			sw $t1, 1932($t0)
+			sw $t1, 2060($t0)	
+			sw $t1, 2188($t0)
+			sw $t1, 2316($t0)
+			sw $t1, 2444($t0)
+			sw $t1, 2572($t0)
+			sw $t1, 2700($t0)
+			sw $t1, 2828($t0)
+			sw $t1, 2956($t0)
+			sw $t1, 3084($t0)
+			sw $t1, 3212($t0)
+			sw $t1, 3340($t0)
+			sw $t1, 3468($t0)
+			sw $t1, 3596($t0)
+			sw $t1, 3724($t0)
+			sw $t1, 3852($t0)
+			sw $t1, 3980($t0)
+			
+			sw $t1, 2064($t0)	# fifth lin
+			sw $t1, 2192($t0)
+			sw $t1, 2320($t0)
+			sw $t1, 2448($t0)
+			sw $t1, 2576($t0)
+			sw $t1, 2704($t0)
+			sw $t1, 2832($t0)
+			sw $t1, 2960($t0)
+			sw $t1, 3088($t0)
+			sw $t1, 3216($t0)
+			sw $t1, 3344($t0)
+			sw $t1, 3472($t0)
+			sw $t1, 3600($t0)
+			sw $t1, 3728($t0)
+			sw $t1, 3856($t0)
+			sw $t1, 3984($t0)		
+			
 EXIT_DISPLAY_BG:	jr $ra
 			
 
