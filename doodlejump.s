@@ -25,6 +25,7 @@ platforms: .space 12			# array of 3 integers
 doodlerLoc: .space 4			# the top most coordinate of the doodler
 gameOverColour: .word 0x56007a		# the colour of the text for the "Game Over" screen
 myMessage: .asciiz  "Game Over\n"
+score: .word 0				# the player's score?
 
 .text
 j main
@@ -343,6 +344,18 @@ gameOver:			lw $t0, displayAddress
 					
 				jr $ra
 
+# function to update the player's score
+updateScore:			la $t0, score
+				lw $t2, 0($t0)
+				addi $t1, $zero, 9
+				bge $t2, $t1, EXIT_UPDATE_SCORE
+				addi $t2, $t2, 1 
+				sw $t2, 0($t0)
+EXIT_UPDATE_SCORE:		jr $ra
+# if score is less than 9, update
+# else, don't do anything
+
+
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
@@ -396,6 +409,10 @@ MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
 			bne $v0, 1, CHECK_ILLEGAL_AREA
 			add $s3, $zero, $zero
+			jal updateScore
+			li $v0, 1
+			lw $a0, score
+			syscall
 
 CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
 			li $t1, 4096
