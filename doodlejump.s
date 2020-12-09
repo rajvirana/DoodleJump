@@ -24,8 +24,8 @@ platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
 doodlerLoc: .space 4			# the top most coordinate of the doodler
 gameOverColour: .word 0x56007a		# the colour of the text for the "Game Over" screen
-myMessage: .asciiz  "Game Over\n"
 score: .word 0				# the player's score?
+scoreColour: .word 0xf0ba18		# the colour of the score display
 
 .text
 j main
@@ -347,14 +347,213 @@ gameOver:			lw $t0, displayAddress
 # function to update the player's score
 updateScore:			la $t0, score
 				lw $t2, 0($t0)
-				addi $t1, $zero, 9
-				bge $t2, $t1, EXIT_UPDATE_SCORE
+				#addi $t1, $zero, 9
+				#bge $t2, $t1, EXIT_UPDATE_SCORE
 				addi $t2, $t2, 1 
 				sw $t2, 0($t0)
 EXIT_UPDATE_SCORE:		jr $ra
-# if score is less than 9, update
-# else, don't do anything
 
+# function that draws a 0 
+# $a0 - the location (unit-wise) the number should be drawn (left-corner)
+displayZero:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# top part of 0
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)			# end of the top line of 0
+				sw $t2, 136($t3)		# start of right vertical line of 0
+				sw $t2, 264($t3)		
+				sw $t2, 392($t3)
+				sw $t2, 520($t3)
+				sw $t2, 516($t3)		# start of bottom line of 0
+				sw $t2, 512($t3)		# end of the bottom line of 0
+				sw $t2, 128($t3)		# start of left vertical line of 0
+				sw $t2, 256($t3)
+				sw $t2, 384($t3)
+				
+				jr $ra
+
+# function that draws a 1
+# $a0 - the location the number should be drawn (left-corner)
+displayOne:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 8($t3)
+				sw $t2, 136($t3)
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)
+				sw $t2, 520($t3)
+				
+				jr $ra
+
+# function that draws a 2
+# $a0 - the location the number should be drawn (left-corner)
+displayTwo:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing fro
+				
+				sw $t2, 0($t3)			# top of 2
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)
+				sw $t2, 136($t3)		# first vertical
+				sw $t2, 264($t3)
+				sw $t2, 260($t3)		# 2nd horizontal
+				sw $t2, 256($t3)
+				sw $t2, 384($t3)		# 2nd vertical
+				sw $t2, 512($t3)
+				sw $t2, 516($t3)		# 3rd horizontal
+				sw $t2, 520($t3)
+				
+				jr $ra
+
+# function that draws a 3
+# $a0 - the location the number should be drawn (left-corner)
+displayThree:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# 1st horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)
+				sw $t2, 128($t3)
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)		# 2nd horizontal
+				sw $t2, 264($t3)
+				sw $t2, 384($t3)
+				sw $t2, 512($t3)
+				sw $t2, 516($t3)		# 3rd horizontal
+				sw $t2, 520($t3)
+				
+				jr $ra
+
+# function that draws a 4
+# $a0 - the location the number should be drawn (left-corner)
+displayFour:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# small vertical
+				sw $t2, 128($t3)
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)		# middle
+				sw $t2, 8($t3)			# long vertical
+				sw $t2, 136($t3)
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)
+				sw $t2, 520($t3)
+				
+				jr $ra
+				
+# function that draws a 5
+# $a0 - the location the number should be drawn (left-corner)
+displayFive:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# first horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)
+				sw $t2, 128($t3)		# first vertical
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)		# second horizontal
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)		# 2nd vertical
+				sw $t2, 520($t3)
+				sw $t2, 516($t3)		# third horizontal
+				sw $t2, 512($t3)
+				
+				jr $ra
+
+# function that draws a 6
+# $a0 - the location the number should be drawn (left-corner)
+displaySix:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# first horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)
+				sw $t2, 128($t3)		# first vertical
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)		# second horizontal
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)		# 2nd vertical
+				sw $t2, 520($t3)
+				sw $t2, 516($t3)		# third horizontal
+				sw $t2, 512($t3)
+				sw $t2, 384($t3)		# filling in the last square
+				
+				jr $ra
+
+# function that draws a 7
+# $a0 - the location the number should be drawn (left-corner)
+displaySeven:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)			# vertical
+				sw $t2, 136($t3)
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)
+				sw $t2, 520($t3)
+				
+				jr $ra
+
+# function that draws a 8
+# $a0 - the location the number should be drawn (left-corner)
+displayEight:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# first horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)
+				sw $t2, 128($t3)		# first vertical
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)		# second horizontal
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)		# 2nd vertical
+				sw $t2, 520($t3)
+				sw $t2, 516($t3)		# third horizontal
+				sw $t2, 512($t3)
+				sw $t2, 384($t3)		# filling in the last square
+				sw $t2, 136($t3)		# filling in the last square
+				
+				jr $ra
+
+# function that draws a 8
+# $a0 - the location the number should be drawn (left-corner)
+displayNine:			add $t0, $a0, $zero
+				lw $t1, displayAddress
+				lw $t2, scoreColour
+				add $t3, $t0, $t1		# the location to start drawing from
+				
+				sw $t2, 0($t3)			# first horizontal
+				sw $t2, 4($t3)
+				sw $t2, 8($t3)			# long vertical
+				sw $t2, 136($t3)		
+				sw $t2, 264($t3)
+				sw $t2, 392($t3)
+				sw $t2, 520($t3)
+				sw $t2, 128($t3)		# short vertical
+				sw $t2, 256($t3)
+				sw $t2, 260($t3)
+				
+				jr $ra
+				
 
 main:	# initialize saved registers
 	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
@@ -418,18 +617,172 @@ CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
 			li $t1, 4096
 			ble $t0, $t1, GENERATE_LOOP_EXIT
 			jal gameOver
-			li $v0, 4
-			la $a0, myMessage
-			syscall
 			j EXIT
 		
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
 			jal displayPlatforms
 			lw $a0, 0($s1)
-			jal displayDoodler			
+			jal displayDoodler
+			
+DISPLAY_SCORE:		lw $t0, score
+			addi $t1, $zero, 9
+			bgt $t0, $t1, DISPLAY_TWO_DIGIT_SCORE
+			
+SCORE_ZERO:		bne $t0, 0, SCORE_ONE
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayZero
+			j SLEEP
+SCORE_ONE:		bne $t0, 1, SCORE_TWO
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayOne
+			j SLEEP
+SCORE_TWO:		bne $t0, 2, SCORE_THREE
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayTwo
+			j SLEEP
+SCORE_THREE:		bne $t0, 3, SCORE_FOUR
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayThree
+			j SLEEP
+SCORE_FOUR:		bne $t0, 4, SCORE_FIVE
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayFour
+			j SLEEP
+SCORE_FIVE:		bne $t0, 5, SCORE_SIX
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayFive
+			j SLEEP
+SCORE_SIX:		bne $t0, 6, SCORE_SEVEN
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displaySix
+			j SLEEP
+SCORE_SEVEN:		bne $t0, 7, SCORE_EIGHT
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displaySeven
+			j SLEEP
+SCORE_EIGHT:		bne $t0, 8, SCORE_NINE
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayEight
+			j SLEEP
+SCORE_NINE:		bne $t0, 9, SLEEP
+			addi $a0, $zero, 136
+			jal displayZero
+			addi $a0, $zero, 152
+			jal displayNine
+			j SLEEP	
+			
+DISPLAY_TWO_DIGIT_SCORE:	addi $t2, $zero, 10
+				div $t0, $t2
+				mfhi $t3		# the first digit
+				mflo $t4		# the second digit
+				
+			
+DISPLAY_FIRST_DIGIT:	# let's first display the first digit
+
+SCORE_ZERO2:		bne $t3, 0, SCORE_ONE2
+			addi $a0, $zero, 152
+			jal displayZero
+			j DISPLAY_SECOND_DIGIT
+SCORE_ONE2:		bne $t3, 1, SCORE_TWO2
+			addi $a0, $zero, 152
+			jal displayOne
+			j DISPLAY_SECOND_DIGIT
+SCORE_TWO2:		bne $t3, 2, SCORE_THREE2
+			addi $a0, $zero, 152
+			jal displayTwo
+			j DISPLAY_SECOND_DIGIT
+SCORE_THREE2:		bne $t3, 3, SCORE_FOUR2
+			addi $a0, $zero, 152
+			jal displayThree
+			j DISPLAY_SECOND_DIGIT
+SCORE_FOUR2:		bne $t3, 4, SCORE_FIVE2
+			addi $a0, $zero, 152
+			jal displayFour
+			j DISPLAY_SECOND_DIGIT
+SCORE_FIVE2:		bne $t3, 5, SCORE_SIX2
+			addi $a0, $zero, 152
+			jal displayFive
+			j DISPLAY_SECOND_DIGIT
+SCORE_SIX2:		bne $t3, 6, SCORE_SEVEN2
+			addi $a0, $zero, 152
+			jal displaySix
+			j DISPLAY_SECOND_DIGIT
+SCORE_SEVEN2:		bne $t3, 7, SCORE_EIGHT2
+			addi $a0, $zero, 152
+			jal displaySeven
+			j DISPLAY_SECOND_DIGIT
+SCORE_EIGHT2:		bne $t3, 8, SCORE_NINE2
+			addi $a0, $zero, 152
+			jal displayEight
+			j DISPLAY_SECOND_DIGIT
+SCORE_NINE2:		bne $t3, 9, DISPLAY_SECOND_DIGIT
+			addi $a0, $zero, 152
+			jal displayNine
+			j DISPLAY_SECOND_DIGIT
+
+DISPLAY_SECOND_DIGIT:	
+
+SCORE_ZERO3:		bne $t4, 0, SCORE_ONE3
+			addi $a0, $zero, 136
+			jal displayZero
+			j SLEEP	
+SCORE_ONE3:		bne $t4, 1, SCORE_TWO3
+			addi $a0, $zero, 136
+			jal displayOne
+			j SLEEP	
+SCORE_TWO3:		bne $t4, 2, SCORE_THREE3
+			addi $a0, $zero, 136
+			jal displayTwo
+			j SLEEP	
+SCORE_THREE3:		bne $t4, 3, SCORE_FOUR3
+			addi $a0, $zero, 136
+			jal displayThree
+			j SLEEP	
+SCORE_FOUR3:		bne $t4, 4, SCORE_FIVE3
+			addi $a0, $zero, 136
+			jal displayFour
+			j SLEEP	
+SCORE_FIVE3:		bne $t4, 5, SCORE_SIX3
+			addi $a0, $zero, 136
+			jal displayFive
+			j SLEEP	
+SCORE_SIX3:		bne $t4, 6, SCORE_SEVEN3
+			addi $a0, $zero, 136
+			jal displaySix
+			j SLEEP	
+SCORE_SEVEN3:		bne $t4, 7, SCORE_EIGHT3
+			addi $a0, $zero, 136
+			jal displaySeven
+			j SLEEP	
+SCORE_EIGHT3:		bne $t4, 8, SCORE_NINE3
+			addi $a0, $zero, 136
+			jal displayEight
+			j SLEEP	
+SCORE_NINE3:		bne $t4, 9, SLEEP
+			addi $a0, $zero, 136
+			jal displayNine
+			j SLEEP	
 	
-			jal sleep
+SLEEP:			jal sleep
 			j GAME_LOOP
 				
 EXIT:	li $v0, 10
