@@ -421,14 +421,14 @@ displayThree:			add $t0, $a0, $zero
 				sw $t2, 0($t3)			# 1st horizontal
 				sw $t2, 4($t3)
 				sw $t2, 8($t3)
-				sw $t2, 128($t3)
-				sw $t2, 256($t3)
-				sw $t2, 260($t3)		# 2nd horizontal
+				sw $t2, 136($t3)		# long vertical
 				sw $t2, 264($t3)
-				sw $t2, 384($t3)
-				sw $t2, 512($t3)
-				sw $t2, 516($t3)		# 3rd horizontal
+				sw $t2, 392($t3)
 				sw $t2, 520($t3)
+				sw $t2, 260($t3)		# 2nd horizontal
+				sw $t2, 256($t3)
+				sw $t2, 516($t3)		# 2nd horizontal
+				sw $t2, 512($t3)
 				
 				jr $ra
 
