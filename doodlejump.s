@@ -18,32 +18,160 @@
 
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
-background: .word 0xbaedff 		# the background colour 
+background: .word 0xbaedff 		# the background colour
+bottomBG: .word 0xffe521		# the colour of the bottom third of the background
+middleBG: .word 0xffb121		# the colour of the middle third of the background
+topBG: .word 0xff7e21			# the colour of the top third of the background 
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
-platformColour: .word 0xc28100 		# the platform's colour (12747008 in decimal)
+platformColour: .word 0xe6a267 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
 doodlerLoc: .space 4			# the top most coordinate of the doodler
 gameOverColour: .word 0x56007a		# the colour of the text for the "Game Over" screen
 score: .word 0				# the player's score?
 scoreColour: .word 0xf0ba18		# the colour of the score display
+leavesColour: .word 0x008729		# the colour of the tree leaves
+trunkColour: .word 0xba6418		# the colour of the tree trunk
+coconutColour: .word 0x783800		# the colour of the coconuts
+
 
 .text
 j main
 
 # function for drawing the background on display
-displayBackground:	lw $t4, displayAddress 		# load the displayAddress into $t4
-			lw $t5, background		# load the background colour into $t5
-			add $t0, $zero, $zero 		# $t0 holds i=0
-			addi $t1, $zero, 1024 		# $t1 holds 1024, the maximum number of pixels to display
+displayBackground:	lw $t0, displayAddress
+			add $t1, $zero, $zero		# i = 0
+			addi $t2, $zero, 448		# draw the top colour up to unit 448
+			lw $t3, topBG			# top colour
 			
-BG_LOOP:		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
-			sll $t2, $t0, 2 		# $t2 = offset = i*4
-			add $t3, $t4, $t2		# $t3 = displayAddress[i] the pixel we will be writing to
-			sw $t5, 0($t3) 			# write the value at register $t5 into $t3 = displayAddress[i]
-			addi $t0, $t0, 1 		# increment i += 1
-			j BG_LOOP
+TOP_LOOP:		bge $t1, $t2, PRE_MIDDLE_LOOP
+			sll $t4, $t1, 2			# offset = i*4
+			add $t5, $t0, $t4		# location in displayAddress we are drawing to
+			sw $t3, 0($t5)
+			addi $t1, $t1, 1		# i += 1
+			j TOP_LOOP
+
+PRE_MIDDLE_LOOP:	addi $t2, $zero, 800		# draw the middle colour from unit 448 to 800
+			lw $t3, middleBG		# middle colour
+
+MIDDLE_LOOP:		bge $t1, $t2, PRE_BOTTOM_LOOP
+			sll $t4, $t1, 2			# ofset = i * 4
+			add $t5, $t0, $t4		# location in displayAddress we are drawing to
+			sw $t3, 0($t5)
+			addi $t1, $t1, 1
+			j MIDDLE_LOOP
+
+PRE_BOTTOM_LOOP: 	addi $t2, $zero, 1024		# draw the bottom colour from unit 800 to 1024
+			lw $t3, bottomBG		# bottom colour
+			
+BOTTOM_LOOP:		bge $t1, $t2, DRAW_TREE
+			sll $t4, $t1, 2			# ofset = i * 4
+			add $t5, $t0, $t4		# location in displayAddress we are drawing to
+			sw $t3, 0($t5)
+			addi $t1, $t1, 1
+			j BOTTOM_LOOP
+
+DRAW_TREE:		# start with drawing the leaves
+			lw $t1, leavesColour
+			sw $t1, 0($t0)
+			sw $t1, 128($t0)
+			sw $t1, 256($t0)
+			sw $t1, 384($t0)
+			sw $t1, 512($t0)
+			sw $t1, 640($t0)
+			sw $t1, 768($t0)
+			sw $t1, 896($t0)
+			sw $t1, 1024($t0)
+			sw $t1, 1152($t0)
+			sw $t1, 1280($t0)
+			sw $t1, 1408($t0)
+			sw $t1, 1536($t0)
+			sw $t1, 1664($t0)
+			sw $t1, 132($t0)	# section break
+			sw $t1, 260($t0)
+			sw $t1, 388($t0)
+			sw $t1, 516($t0)
+			sw $t1, 644($t0)
+			sw $t1, 772($t0)
+			sw $t1, 900($t0)
+			sw $t1, 1028($t0)
+			sw $t1, 1156($t0)
+			sw $t1, 1284($t0)
+			sw $t1, 1412($t0)
+			sw $t1, 1540($t0)
+			sw $t1, 1668($t0)
+			sw $t1, 392($t0)	# section break
+			sw $t1, 520($t0)
+			sw $t1, 648($t0)
+			sw $t1, 776($t0)
+			sw $t1, 904($t0)
+			sw $t1, 1032($t0)
+			sw $t1, 1160($t0)
+			sw $t1, 1288($t0)
+			sw $t1, 1416($t0)
+			sw $t1, 652($t0)	# section break
+			sw $t1, 780($t0)
+			sw $t1, 908($t0)
+			sw $t1, 1036($t0)
+			sw $t1, 1164($t0)
+			sw $t1, 1292($t0)
+			sw $t1, 1420($t0)
+			sw $t1, 528($t0)	# section break
+			sw $t1, 656($t0)
+			sw $t1, 784($t0)
+			sw $t1, 912($t0)
+			sw $t1, 1040($t0)
+			sw $t1, 1168($t0)
+			sw $t1, 1296($t0)
+			sw $t1, 1424($t0)
+			sw $t1, 1552($t0)
+			sw $t1, 1680($t0)
+			sw $t1, 276($t0)	# section break
+			sw $t1, 404($t0)
+			sw $t1, 532($t0)
+			sw $t1, 660($t0)
+			sw $t1, 788($t0)
+			sw $t1, 1172($t0)	# section break
+			sw $t1, 1300($t0)
+			sw $t1, 1428($t0)
+			sw $t1, 280($t0)	# section break
+			sw $t1, 408($t0)
+			sw $t1, 536($t0)
+			sw $t1, 664($t0)
+			sw $t1, 1176($t0)	# section break
+			sw $t1, 1304($t0)
+			sw $t1, 1432($t0)
+			sw $t1, 156($t0)	# section break
+			sw $t1, 284($t0)
+			sw $t1, 412($t0)
+			sw $t1, 160($t0)
+			sw $t1, 288($t0)
+			sw $t1, 1308($t0)	# section break
+			sw $t1, 1436($t0)
+			sw $t1, 1564($t0)
+			sw $t1, 1312($t0)
+			sw $t1, 1440($t0)
+			sw $t1, 1568($t0)
+			sw $t1, 1572($t0)
+
+EXIT_DISPLAY_BG:	jr $ra
+			
+
+			
+			
+			
+			#lw $t4, displayAddress 		# load the displayAddress into $t4
+			#lw $t5, background		# load the background colour into $t5
+			#add $t0, $zero, $zero 		# $t0 holds i=0
+			#addi $t1, $zero, 1024 		# $t1 holds 1024, the maximum number of pixels to display
+			
+#BG_LOOP:		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
+			#sll $t2, $t0, 2 		# $t2 = offset = i*4
+			#add $t3, $t4, $t2		# $t3 = displayAddress[i] the pixel we will be writing to
+			#sw $t5, 0($t3) 			# write the value at register $t5 into $t3 = displayAddress[i]
+			#addi $t0, $t0, 1 		# increment i += 1
+			#j BG_LOOP
 	
-BG_LOOP_EXIT:		jr $ra
+#BG_LOOP_EXIT:		#jr $ra
 
 # function for generating a random number (used to decide where a platform should be drawn)
 generateRandom:		li $v0, 42
