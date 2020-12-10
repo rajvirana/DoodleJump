@@ -21,7 +21,7 @@ displayAddress: .word 0x10008000 	# the display address we write pixels to
 background: .word 0xbaedff 		# the background colour
 bottomBG: .word 0xffe521		# the colour of the bottom third of the background
 middleBG: .word 0xffb121		# the colour of the middle third of the background
-topBG: .word 0xff7e21			# the colour of the top third of the background 
+topBG: .word 0xfa6d0f			# the colour of the top third of the background 
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xe6a267 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
@@ -40,35 +40,20 @@ j main
 # function for drawing the background on display
 displayBackground:	lw $t0, displayAddress
 			add $t1, $zero, $zero		# i = 0
-			addi $t2, $zero, 448		# draw the top colour up to unit 448
+			addi $t2, $zero, 1024		# draw the background colour
 			lw $t3, topBG			# top colour
+			add $t6, $zero, 32
 			
-TOP_LOOP:		bge $t1, $t2, PRE_MIDDLE_LOOP
+TOP_LOOP:		bge $t1, $t2, DRAW_TREE
 			sll $t4, $t1, 2			# offset = i*4
 			add $t5, $t0, $t4		# location in displayAddress we are drawing to
-			sw $t3, 0($t5)
+			div $t1, $t6
+			mfhi $t7
+			bne $t7, 0, NO_BG_INCREMENT
+			addi $t3, $t3, 8
+NO_BG_INCREMENT:	sw $t3, 0($t5)
 			addi $t1, $t1, 1		# i += 1
 			j TOP_LOOP
-
-PRE_MIDDLE_LOOP:	addi $t2, $zero, 800		# draw the middle colour from unit 448 to 800
-			lw $t3, middleBG		# middle colour
-
-MIDDLE_LOOP:		bge $t1, $t2, PRE_BOTTOM_LOOP
-			sll $t4, $t1, 2			# ofset = i * 4
-			add $t5, $t0, $t4		# location in displayAddress we are drawing to
-			sw $t3, 0($t5)
-			addi $t1, $t1, 1
-			j MIDDLE_LOOP
-
-PRE_BOTTOM_LOOP: 	addi $t2, $zero, 1024		# draw the bottom colour from unit 800 to 1024
-			lw $t3, bottomBG		# bottom colour
-			
-BOTTOM_LOOP:		bge $t1, $t2, DRAW_TREE
-			sll $t4, $t1, 2			# ofset = i * 4
-			add $t5, $t0, $t4		# location in displayAddress we are drawing to
-			sw $t3, 0($t5)
-			addi $t1, $t1, 1
-			j BOTTOM_LOOP
 
 DRAW_TREE:		# start with drawing the leaves
 			lw $t1, leavesColour
