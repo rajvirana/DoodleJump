@@ -384,8 +384,8 @@ doodlerDown:		lw $t0, 0($s1)		# load the current position of the doodler into $t
 checkPlatformCollision:		lw $t0, 0($s1)				# load the doodler's location into $t0 (unit-wise)
 				lw $t1, displayAddress			# the displayAddress
 				lw $t7, platformColour 			# the colour of the platform
-				addi $t2, $t0, 252			# left foot (unit-wise)
-				addi $t3, $t0, 260			# right foot (unit-wise)
+				addi $t2, $t0, 384			# left foot (unit-wise)
+				addi $t3, $t0, 392			# right foot (unit-wise)
 				
 				addi $t4, $t2, 128			# the position directly underneath the left foot (unit-wise)
 				add $t5, $t4, $t1			# the position directly underneath the left foot in relation to the displayAddress
@@ -450,7 +450,7 @@ EXIT_NEW_PLATFORMS_LOOP:	lw $ra, 0($sp)				# pop a word off the stack
 
 # function to update the doodler's position after jumping to high up
 updateDoodlerLoc:		lw $t0, 0($s1)				# load the doodler's current position
-				addi $t0, $t0, 1024			# add 4 rows to the doodler
+				addi $t0, $t0, 1152			# add 4 rows to the doodler
 				sw $t0, 0($s1)				# write this into $s1
 				jr $ra
 				
@@ -782,31 +782,72 @@ displayNine:			add $t0, $a0, $zero
 
 # function that draws a coconut
 # $a0 - the offset the coconut is drawin by (top-left corner of the coconut)
-displayCoconut:			add $t0, $a0, $zero		# the offset to draw the coconut at
-				lw $t1, displayAddress
-				lw $t2, deadlyCoconutColour
-				add $t3, $t0, $t1		# the position to start drawing at
-				sw $t2, 0($t3)
-				sw $t2, 4($t3)
-				sw $t2, 128($t3)
-				sw $t2, 132($t3)
-				
-				jr $ra
+displayCoconuts:		lw $t0, displayAddress
+				lw $t5, deadlyCoconutColour
+				add $t1, $zero, $zero
+				addi $t2, $zero, 3
+DISPLAY_COCONUTS_LOOP:		bge $t1, $t2, EXIT_DISPLAY_COCONUTS
+				sll $t3, $t1, 2				# offset = i*4
+				add $t6, $s5, $t3			# addr(deadlyCoconuts[i])
+				lw $t7, 0($t6)				# deadlyCoconuts[i]
+				add $t7, $t7, $t0			# location to write in realtion to displayAddress
+				sw $t5, 0($t7)
+				sw $t5, 4($t7)
+				sw $t5, 128($t7)
+				sw $t5, 132($t7)
+				addi $t1, $t1, 1			# i += 1
+				j DISPLAY_COCONUTS_LOOP
 
+EXIT_DISPLAY_COCONUTS:		jr $ra
+
+# function to update the values of each coconut
+updateCoconuts:			add $t0, $zero, $zero
+				addi $t1, $zero, 3
+UPDATE_COCONUTS_LOOP:		bge $t0, $t1, EXIT_UPDATE_COCONUTS
+				sll $t2, $t0, 2				# offset = i*4
+				add $t3, $t2, $s5			# addr(deadlyCoconuts[i])
+				lw $t4, 0($t3)				# deadlyCoconuts[i]
+				addi $t4, $t4, 256
+				sw $t4, 0($t3)
+				addi $t0, $t0, 1			# i += 1
+				j UPDATE_COCONUTS_LOOP
+
+EXIT_UPDATE_COCONUTS:		jr $ra
+
+# function that resets the coconuts position when they have moved off screen
+resetCoconuts:			lw $t8, 0($s5)
+				blt $t8, 4020, DISPLAY_SCORE
+				addi $t1, $zero, 52 	# initial position for deadlyCoconuts[i]
+				sw $t1, 0($s5)		# deadlyCoconuts[i] = 13
+				addi $t1, $zero, 80    
+				sw $t1, 4($s5)
+				addi $t1, $zero, 104
+				sw $t1, 8($s5)
+				li $s4, 0
+				
 # function that randomly decides if a coconut should start falling or not
 # $a0 will be 0 if no coconut, or 1, if yes coconut at the end of this function
 generateRandomCoconut:		li $v0, 42
 				li $a0, 0
-				li $a1, 1
+				li $a1, 2
 				syscall
 				
 				jr $ra				
 				
 
 main:	# initialize saved registers
-	la $s0, platforms 	# $s4 holds the leftmost coordinates of 3 platforms
-	la $s1, doodlerLoc 	# $s5 holds the topmost coordinate of the doodler
+	la $s0, platforms 	# $s0 holds the leftmost coordinates of 3 platforms
+	la $s1, doodlerLoc 	# $s1 holds the topmost coordinate of the doodler
 	li $s2, 1		# $s2 is 1 if the game should continue running, 0 if it should reset to initial position and freeze
+	li $s4, 0		# currently, do not display any coconuts
+	la $s5, deadlyCoconuts	# $s5 holds array of coconuts
+
+	addi $t1, $zero, 52 	# initial position for deadlyCoconuts[i]
+	sw $t1, 0($s5)		# deadlyCoconuts[i] = 13
+	addi $t1, $zero, 80    
+	sw $t1, 4($s5)
+	addi $t1, $zero, 104
+	sw $t1, 8($s5)
 	
 	add $t0, $zero, $zero # $t0 holds i=0
 	addi $t1, $zero, 3 # $t1 holds 3, the maximum number of platforms to display
@@ -873,6 +914,20 @@ GENERATE_LOOP_EXIT:	# draw screen
 			lw $a0, 0($s1)
 			jal displayDoodler
 			
+COCONUT_GENERATOR:	bne $s4, 0, DISPLAY_COCONUTS 		# if $s4 == 0, generate a number to see if we should throw coconuts
+			jal generateRandomCoconut
+			add $t3, $a0, $zero
+			bne $t3, 1, DISPLAY_SCORE		# if $a0 == 1, throw the coconuts!!
+			li $s4, 1				# store 1 into $s3 to display coconuts
+
+DISPLAY_COCONUTS:	jal displayCoconuts
+			
+UPDATE_COCONUTS:	jal updateCoconuts
+			
+
+
+RESET_COCONUTS:		jal resetCoconuts
+				
 DISPLAY_SCORE:		lw $t0, score
 			addi $t1, $zero, 9
 			bgt $t0, $t1, DISPLAY_TWO_DIGIT_SCORE
