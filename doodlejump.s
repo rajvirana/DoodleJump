@@ -20,7 +20,7 @@
 displayAddress: .word 0x10008000 	# the display address we write pixels to
 background: .word 0xbaedff 		# the background colour
 topBG: .word 0xfa6d0f			# the colour of the top third of the background 
-doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
+doodlerColour: .word 0xff1919		# the doodler's colour (1220979 in decimal)
 platformColour: .word 0xffffff 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
 doodlerLoc: .space 4			# the top most coordinate of the doodler
@@ -301,15 +301,32 @@ DISPLAY_PLATFORMS_EXIT:	jr $ra
 # function to display doodler on screen
 displayDoodler:		lw $t0, displayAddress	# load the displayAddress into $t0
 			lw $t1, doodlerColour 	# load the doodlerColour into $t1
+			lw $t8, trunkColour # will be used for the eyes and mouth 
 			add $t2, $a0, $zero 	# the topmost coordinate the doodler is drawn at (3648 is the initial position)
 			sw $t2, 0($s1)		# save the doodler's current location
 			add $t3, $t2, $t0	# the topmost coordinate of the doodler in relation to the displayAddress
-			sw $t1, 0($t3)		# head
-			sw $t1, 124($t3)	# body left
-			sw $t1, 128($t3)	# body middle
-			sw $t1, 132($t3)	# body right
-			sw $t1, 252($t3)	# left foot
-			sw $t1, 260($t3)	# right foot
+			
+			sw $t8, 0($t3)		# first line
+			sw $t1, 4($t3)
+			sw $t8, 8($t3)
+			sw $t1, 128($t3)	# second line
+			sw $t8, 132($t3)
+			sw $t1, 136($t3)
+			sw $t1, 124($t3)	# right arm
+			sw $t1, -8($t3)	
+			sw $t1, 140($t3)	# left arm
+			sw $t1, 16($t3)
+			sw $t1, 256($t3)	# third line
+			sw $t1, 260($t3)
+			sw $t1, 264($t3)
+			sw $t1, 384($t3)	# left foot
+			sw $t1, 392($t3)	# right foot
+			
+			#sw $t1, 124($t3)	# body left
+			#sw $t1, 128($t3)	# body middle
+			#sw $t1, 132($t3)	# body right
+			#sw $t1, 252($t3)	# left foot
+			#sw $t1, 260($t3)	# right foot
 			jr $ra
 
 # function to make the program sleep for a certain number of milliseconds
