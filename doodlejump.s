@@ -910,6 +910,10 @@ GAME_LOOP:	beqz $s2, EXIT
 		bge $s3, 12, MOVE_DOWN		# if $s3 >= 10, then it's time for the doodler to descend
 MOVE_UP:	jal doodlerUp			# else, move the doodler up
 		addi $s3, $s3, 1		# increment the counter by 1
+		jal updateScore
+		li $v0, 1
+		lw $a0, score
+		syscall
 		j UPDATE_PLATFORMS		# proceed to check for keyboard input
 MOVE_DOWN:	jal doodlerDown
 
@@ -933,10 +937,7 @@ MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
 			bne $v0, 1, CHECK_ILLEGAL_AREA
 			add $s3, $zero, $zero
-			jal updateScore
-			li $v0, 1
-			lw $a0, score
-			syscall
+			
 
 CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
 			li $t1, 4096
