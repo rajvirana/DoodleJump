@@ -261,23 +261,6 @@ DRAW_TREE:		# start with drawing the leaves
 EXIT_DISPLAY_BG:	jr $ra
 			
 
-			
-			
-			
-			#lw $t4, displayAddress 		# load the displayAddress into $t4
-			#lw $t5, background		# load the background colour into $t5
-			#add $t0, $zero, $zero 		# $t0 holds i=0
-			#addi $t1, $zero, 1024 		# $t1 holds 1024, the maximum number of pixels to display
-			
-#BG_LOOP:		bge $t0, $t1, BG_LOOP_EXIT	# exit when i >= 1024
-			#sll $t2, $t0, 2 		# $t2 = offset = i*4
-			#add $t3, $t4, $t2		# $t3 = displayAddress[i] the pixel we will be writing to
-			#sw $t5, 0($t3) 			# write the value at register $t5 into $t3 = displayAddress[i]
-			#addi $t0, $t0, 1 		# increment i += 1
-			#j BG_LOOP
-	
-#BG_LOOP_EXIT:		#jr $ra
-
 # function for generating a random number (used to decide where a platform should be drawn)
 generateRandom:		li $v0, 42
 			li $a0, 0
