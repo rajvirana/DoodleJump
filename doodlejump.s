@@ -573,8 +573,8 @@ gameOver:			lw $t0, displayAddress
 # function to update the player's score
 updateScore:			la $t0, score
 				lw $t2, 0($t0)
-				#addi $t1, $zero, 9
-				#bge $t2, $t1, EXIT_UPDATE_SCORE
+				addi $t1, $zero, 99
+				bge $t2, $t1, EXIT_UPDATE_SCORE
 				addi $t2, $t2, 1 
 				sw $t2, 0($t0)
 EXIT_UPDATE_SCORE:		jr $ra
