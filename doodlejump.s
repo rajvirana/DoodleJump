@@ -792,7 +792,15 @@ displayCoconut:			add $t0, $a0, $zero		# the offset to draw the coconut at
 				sw $t2, 132($t3)
 				
 				jr $ra
+
+# function that randomly decides if a coconut should start falling or not
+# $a0 will be 0 if no coconut, or 1, if yes coconut at the end of this function
+generateRandomCoconut:		li $v0, 42
+				li $a0, 0
+				li $a1, 1
+				syscall
 				
+				jr $ra				
 				
 
 main:	# initialize saved registers
