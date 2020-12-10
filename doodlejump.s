@@ -13,8 +13,11 @@
 # - Base Address for Display: 0x10008000 ($gp)
 #
 # Which milestone is reached in this submission?
-# - Milestone 4
-#
+# - Milestone 5
+# 1. Program terminates with Game Over screen when player jumps to illegal area
+# 2. Player's score is displayed on the screen
+# 3. Fancier graphics: background, platform, and doodler's appearances have been updated
+# 
 
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
@@ -30,6 +33,8 @@ scoreColour: .word 0xf0ba18		# the colour of the score display
 leavesColour: .word 0x008729		# the colour of the tree leaves
 trunkColour: .word 0xba6418		# the colour of the tree trunk
 coconutColour: .word 0x783800		# the colour of the coconuts
+deadlyCoconutColour: .word 0x8c2315	# the colour of the deadly coconuts
+deadlyCoconuts: .space 12		# array of 3 integers
 
 
 .text
@@ -322,11 +327,6 @@ displayDoodler:		lw $t0, displayAddress	# load the displayAddress into $t0
 			sw $t1, 384($t3)	# left foot
 			sw $t1, 392($t3)	# right foot
 			
-			#sw $t1, 124($t3)	# body left
-			#sw $t1, 128($t3)	# body middle
-			#sw $t1, 132($t3)	# body right
-			#sw $t1, 252($t3)	# left foot
-			#sw $t1, 260($t3)	# right foot
 			jr $ra
 
 # function to make the program sleep for a certain number of milliseconds
@@ -779,6 +779,20 @@ displayNine:			add $t0, $a0, $zero
 				sw $t2, 260($t3)
 				
 				jr $ra
+
+# function that draws a coconut
+# $a0 - the offset the coconut is drawin by (top-left corner of the coconut)
+displayCoconut:			add $t0, $a0, $zero		# the offset to draw the coconut at
+				lw $t1, displayAddress
+				lw $t2, deadlyCoconutColour
+				add $t3, $t0, $t1		# the position to start drawing at
+				sw $t2, 0($t3)
+				sw $t2, 4($t3)
+				sw $t2, 128($t3)
+				sw $t2, 132($t3)
+				
+				jr $ra
+				
 				
 
 main:	# initialize saved registers
