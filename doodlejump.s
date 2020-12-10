@@ -36,6 +36,11 @@ coconutColour: .word 0x783800		# the colour of the coconuts
 deadlyCoconutColour: .word 0x8c2315	# the colour of the deadly coconuts
 deadlyCoconuts: .space 12		# array of 3 integers
 
+pitch: .byte 69 # Put the notes to your song in a MIPS “array”
+duration: .byte 100
+instrument: .byte 58
+volume: .byte 100
+
 
 .text
 j main
@@ -870,7 +875,20 @@ CHECK_RIGHT_ARM:		lw $t5, 0($t4)
 				j EXIT_COCONUT_COLLISION
 EXIT_COCONUT_COLLISION:		jr $ra		
 				
-				
+# function that plays a sound
+playSound:			li $v0, 31 
+				la $t0, pitch
+				la $t1, duration 
+				la $t2, instrument
+				la $t3, volume 
+				move $a0, $t0 
+				move $a1, $t1 
+				move $a2, $t2
+				move $a3, $t3 
+				syscall 
+				li $v0, 10 #end program
+				jr $ra
+
 main:	# initialize saved registers
 	la $s0, platforms 	# $s0 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s1 holds the topmost coordinate of the doodler
@@ -937,6 +955,7 @@ MOVE_RIGHT:	jal doodlerRight		# change the coordinate so that the doodler moves 
 CHECK_COLLISION_GAME:	jal checkPlatformCollision
 			bne $v0, 1, CHECK_ILLEGAL_AREA
 			add $s3, $zero, $zero
+			jal playSound
 			
 
 CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
