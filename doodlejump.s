@@ -921,7 +921,7 @@ UPDATE_PLATFORMS:	lw $t0, 0($s1)
 		
 GAME_INPUT:	jal checkKeyboardInput		# check if a key has been pressed
 		
-		beq $v0, 1, GENERATE_LOOP1	# if 's' has been pressed, then go back to GENERATE_LOOP1
+		beq $v0, 1, main	# if 's' has been pressed, then go back to GENERATE_LOOP1
 		beq $v0, 2, MOVE_LEFT		# if 'j' has been pressed, then move left
 		beq $v0, 3, MOVE_RIGHT		# if 'k' has been pressed, then move right
 		j CHECK_COLLISION_GAME
