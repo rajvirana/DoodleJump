@@ -17,7 +17,7 @@
 # 1. Program terminates with Game Over screen when player jumps to illegal area
 # 2. Player's score is displayed on the screen
 # 3. Fancier graphics: background, platform, and doodler's appearances have been updated
-# 
+# 4. Lethal Obstacles: Coconuts thrown randomly
 
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
@@ -829,12 +829,48 @@ resetCoconuts:			lw $t8, 0($s5)
 # $a0 will be 0 if no coconut, or 1, if yes coconut at the end of this function
 generateRandomCoconut:		li $v0, 42
 				li $a0, 0
-				li $a1, 2
+				li $a1, 3
 				syscall
 				
-				jr $ra				
+				jr $ra
+# function to detect collision detection with a coconut
+coconutCollision:		lw $t0, 0($s1)				# load the doodler's location into $t0 (unit-wise)
+				lw $t1, displayAddress			# the displayAddress
+				lw $t7, deadlyCoconutColour 		# the colour of the coconuts
+				addi $t2, $t0, 8			# right part of doolder's head (unit-wise)
+				addi $t3, $t0, -8			# left arm (unit-wise)
+				addi $t4, $t0, 16			# right arm (unit-wise)
 				
-
+				add $t0, $t0, -128			
+				add $t0, $t0, $t1			# the position right above left part of the head
+				add $t2, $t2, -120
+				add $t2, $t2, $t1			# the position right above right part of the head
+				add $t3, $t3, -12
+				add $t3, $t3, $t1			# the position to the left of the left arm
+				add $t4, $t4, 20
+				add $t4, $t4, $t1			# the position to the right of the right arm
+				
+				add $v0, $zero, $zero			# collision = true
+				
+				lw $t5, 0($t0)
+				bne $t5, $t7, CHECK_RIGHT_ARM
+				addi $v0, $zero, 1			# collision = true
+				j EXIT_COCONUT_COLLISION
+CHECK_RIGHT_HEAD:		lw $t5, 0($t2)
+				bne $t5, $t7, CHECK_LEFT_ARM
+				addi $v0, $zero, 1			# collision = true
+				j EXIT_COCONUT_COLLISION
+CHECK_LEFT_ARM:			lw $t5, 0($t3)
+				bne $t5, $t7, CHECK_RIGHT_ARM
+				addi $v0, $zero, 1			# collision = true
+				j EXIT_COCONUT_COLLISION
+CHECK_RIGHT_ARM:		lw $t5, 0($t4)
+				bne $t5, $t7, EXIT_COCONUT_COLLISION
+				addi $v0, $zero, 1			# collision = true
+				j EXIT_COCONUT_COLLISION
+EXIT_COCONUT_COLLISION:		jr $ra		
+				
+				
 main:	# initialize saved registers
 	la $s0, platforms 	# $s0 holds the leftmost coordinates of 3 platforms
 	la $s1, doodlerLoc 	# $s1 holds the topmost coordinate of the doodler
@@ -904,9 +940,15 @@ CHECK_COLLISION_GAME:	jal checkPlatformCollision
 
 CHECK_ILLEGAL_AREA:	lw $t0, 0($s1)
 			li $t1, 4096
-			ble $t0, $t1, GENERATE_LOOP_EXIT
+			ble $t0, $t1, CHECK_COCONUT_COLLISION
 			jal gameOver
 			j EXIT
+
+CHECK_COCONUT_COLLISION:	jal coconutCollision
+				add $t0, $v0, $zero
+				bne $t0, 1, GENERATE_LOOP_EXIT
+				jal gameOver
+				j EXIT
 		
 GENERATE_LOOP_EXIT:	# draw screen
 			jal displayBackground
