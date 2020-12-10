@@ -18,6 +18,7 @@
 # 2. Player's score is displayed on the screen
 # 3. Fancier graphics: background, platform, and doodler's appearances have been updated
 # 4. Lethal Obstacles: Coconuts thrown randomly
+# 5. Sound effect whenever doodler jumps on platform
 
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
@@ -36,9 +37,9 @@ coconutColour: .word 0x783800		# the colour of the coconuts
 deadlyCoconutColour: .word 0x8c2315	# the colour of the deadly coconuts
 deadlyCoconuts: .space 12		# array of 3 integers
 
-pitch: .byte 69 # Put the notes to your song in a MIPS “array”
+pitch: .byte 70 # Put the notes to your song in a MIPS “array”
 duration: .byte 100
-instrument: .byte 58
+instrument: .byte 96
 volume: .byte 100
 
 
