@@ -19,11 +19,9 @@
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
 background: .word 0xbaedff 		# the background colour
-bottomBG: .word 0xffe521		# the colour of the bottom third of the background
-middleBG: .word 0xffb121		# the colour of the middle third of the background
 topBG: .word 0xfa6d0f			# the colour of the top third of the background 
 doodlerColour: .word 0x12a173 		# the doodler's colour (1220979 in decimal)
-platformColour: .word 0xe6a267 		# the platform's colour (12747008 in decimal)
+platformColour: .word 0xffffff 		# the platform's colour (12747008 in decimal)
 platforms: .space 12			# array of 3 integers
 doodlerLoc: .space 4			# the top most coordinate of the doodler
 gameOverColour: .word 0x56007a		# the colour of the text for the "Game Over" screen
@@ -264,27 +262,37 @@ insertNumber:		add $t2, $a0, $zero 	# load the value in $a0 into $t2
 
 # function for displaying the 3 platforms on the screen utilizing the platforms array in $s4 (size = 3)
 displayPlatforms:	lw $t9, displayAddress
-			lw $s7, platformColour
+			lw $t2, platformColour
 			add $t0, $zero, $zero 	# i = 0
 			addi $t1, $zero, 3	# limit_i = 3
 			
-PLATFORMS_LOOP:		bge $t0, $t1, DISPLAY_PLATFORMS_EXIT 	# exit when $t0 >= $t1 (i >= 3)
-			sll $t2, $t0, 2 			# offset = i*4
-			add $t3, $s0, $t2 			# $t3 = addr(platforms[i])
-			lw $t4, 0($t3)				# load the value at platforms[i] into $t4, we have the position to display a platform now
-			sll $t4, $t4, 2
-			add $t4, $t9, $t4			# the position to write to in relation to the displayAddress
-		
-			add $t5, $zero, $zero			# j = 0
-			addi $t6, $zero, 6			# limit_j = 6
+PLATFORMS_LOOP:		# loop through the platforms and display a cloud
+			bge $t0, $t1, DISPLAY_PLATFORMS_EXIT	# while i < 3
+			sll $t3, $t0, 2				# offset = i*4
+			add $t4, $s0, $t3			# addr(platforms[i])
+			lw $t5, 0($t4)				# the value at platforms[i]
+			sll $t5, $t5, 2
+			add $t6, $t9, $t5			# the position we are drawing at
+			sw $t2, 0($t6)				# first row of the cloud
+			sw $t2, 4($t6)
+			sw $t2, 8($t6)
+			sw $t2, 12($t6)
+			sw $t2, 16($t6)
+			sw $t2, 20($t6)
+			sw $t2, 24($t6)
+			sw $t2, -124($t6)			# second row of the cloud
+			sw $t2, -120($t6)
+			sw $t2, -116($t6)
+			sw $t2, -112($t6)
+			sw $t2, -108($t6)
+			sw $t2, -248($t6)			# third row of the cloud
+			sw $t2, -244($t6)
+			sw $t2, -240($t6)
 			
-DISPLAY_PLATFORMS_SUB_LOOP:	bge $t5, $t6, EXIT_DISPLAY_SUB_LOOP 	# exit when j >= 3
-				sll $t7, $t5, 2				# sub_offset = j*4
-				add $t8, $t4, $t7			# the new positions we want to draw $s3 to in $s0
-				sw $s7, 0($t8)				# display the platform colour to $s0 at the appropriate position
-				addi $t5, $t5, 1			# j += 1
-				j DISPLAY_PLATFORMS_SUB_LOOP
-		
+			addi $t0, $t0, 1
+			j PLATFORMS_LOOP
+			
+			
 EXIT_DISPLAY_SUB_LOOP:	addi $t0, $t0, 1			# increment i += 1
 			j PLATFORMS_LOOP
 		
