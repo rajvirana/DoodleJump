@@ -1,24 +1,11 @@
 #####################################################################
 #
-# CSC258H5S Fall 2020 Assembly Final Project
-# University of Toronto, St. George
+# Rajvi Rana
 #
-# Student: Rajvi Rana, 1005103745
-#
-# Bitmap Display Configuration:
-# - Unit width in pixels: 8
-# - Unit height in pixels: 8
-# - Display width in pixels: 256
-# - Display height in pixels: 256
-# - Base Address for Display: 0x10008000 ($gp)
-#
-# Which milestone is reached in this submission?
-# - Milestone 5
-# 1. Program terminates with Game Over screen when player jumps to illegal area
-# 2. Player's score is displayed on the screen
-# 3. Fancier graphics: background, platform, and doodler's appearances have been updated
-# 4. Lethal Obstacles: Coconuts thrown randomly
-# 5. Sound effect whenever doodler jumps on platform
+# Instructions:
+# 1. To run this game, open up the bitmap display and the keyboard disaply and mmio simulator
+# 2. Select connect to MIPS for both displays
+# 3. Press 's' to start and stop the game; 'j' to move left; 'r' to move left
 
 .data
 displayAddress: .word 0x10008000 	# the display address we write pixels to
@@ -37,7 +24,7 @@ coconutColour: .word 0x783800		# the colour of the coconuts
 deadlyCoconutColour: .word 0x8c2315	# the colour of the deadly coconuts
 deadlyCoconuts: .space 12		# array of 3 integers
 
-pitch: .byte 70 # Put the notes to your song in a MIPS ìarrayî
+pitch: .byte 70 # Put the notes to your song in a MIPS ‚Äúarray‚Äù
 duration: .byte 100
 instrument: .byte 96
 volume: .byte 100
