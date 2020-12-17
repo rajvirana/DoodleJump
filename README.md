@@ -5,7 +5,7 @@ As a final project in my computer organization course (CSC258) I developed a min
 To play the game you will need to install [MARS](https://courses.missouristate.edu/KenVollmar/MARS/download.htm).
 Once that's downloaded, go ahead and open up the Bitmap Display and Keyboard Display and MMIO Simulator and select "Connect to MIPS" for both of them.
 
-## Bitmap Display Configurations
+### Bitmap Display Configurations
 - Unit width in pixels: 8
 - Unit height in pixels: 8
 - Display width in pixels: 256
